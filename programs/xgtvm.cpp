@@ -1,9 +1,13 @@
 #include <vector>
+#include <map>
+#include <deque>
 #include <iostream>
 #include <sstream>
-#include <deque>
 
 class instruction;
+
+typedef char word;
+typedef int address;
 
 enum opcode {
   null_opcode = 0x00,
@@ -23,30 +27,30 @@ class listener;
 // TODO: Notify listeners
 class machine
 {
-  int pc;
-  std::deque<char> stack;
+  address pc;
+  std::deque<word> stack;
   machine_state state;
   std::string code;
   // TODO: Use this
-  char current_instruction;
-  std::vector< std::unique_ptr<instruction> > instructions;
+  word current_instruction;
+  std::map< opcode, std::unique_ptr<instruction> > instructions;
   std::vector< std::unique_ptr<listener> > listeners;
 
   public:
   machine() : pc(0), code(), state(running_machine_state) {}
   machine(std::string c) : pc(0), code(c), state(running_machine_state) {}
-  void register_instruction(std::unique_ptr<instruction> w);
+  void register_instruction(opcode o, std::unique_ptr<instruction> w);
   void register_listener(std::unique_ptr<listener> l);
   void step();
   // TODO: Use these
   bool is_running();
   void stop();
-  char get_instruction(int i);
-  int get_pc();
-  void stack_push(char c);
-  char stack_peek();
+  word get_instruction(address i);
+  address get_pc();
+  void stack_push(word c);
+  word stack_peek();
   void stack_pop();
-  void jump(int i);
+  void jump(address i);
 };
 
 class listener
@@ -70,7 +74,6 @@ class noop_instruction : public instruction
   ~noop_instruction() {}
   void evaluate(machine& m)
   {
-    if (m.get_instruction(m.get_pc()) != noop_opcode) return;
     std::cout << "noop_instruction::evaluate" << std::endl;
   }
 };
@@ -81,9 +84,8 @@ class push_instruction : public instruction
   ~push_instruction() {}
   void evaluate(machine& m)
   {
-    if (m.get_instruction(m.get_pc()) != push_opcode) return;
     std::cout << "push_instruction::evaluate" << std::endl;
-    char next_instruction = m.get_instruction(m.get_pc() + 1);
+    word next_instruction = m.get_instruction(m.get_pc() + 1);
     m.stack_push(next_instruction);
     m.jump(m.get_pc() + 1);
   }
@@ -95,11 +97,10 @@ class add_instruction : public instruction
   ~add_instruction() {}
   void evaluate(machine& m)
   {
-    if (m.get_instruction(m.get_pc()) != add_opcode) return;
     std::cout << "add_instruction::evaluate" << std::endl;
-    char a = m.stack_peek();
+    word a = m.stack_peek();
     m.stack_pop();
-    char b = m.stack_peek();
+    word b = m.stack_peek();
     m.stack_pop();
     m.stack_push(a + b);
   }
@@ -111,9 +112,8 @@ class display_instruction : public instruction
   ~display_instruction() {}
   void evaluate(machine& m)
   {
-    if (m.get_instruction(m.get_pc()) != display_opcode) return;
-    std::cout << "add_instruction::evaluate" << std::endl;
-    char v = m.stack_peek();
+    std::cout << "display_instruction::evaluate" << std::endl;
+    word v = m.stack_peek();
     m.stack_pop();
     std::cout << "DISPLAY: " << (int)v << std::endl;
   }
@@ -133,9 +133,9 @@ class stub_listener : public listener
   }
 };
 
-void machine::register_instruction(std::unique_ptr<instruction> w)
+void machine::register_instruction(opcode o, std::unique_ptr<instruction> w)
 {
-  instructions.push_back(std::move(w));
+  instructions.emplace(o, std::move(w));
 }
 
 void machine::register_listener(std::unique_ptr<listener> l)
@@ -158,8 +158,8 @@ void machine::step()
   {
     for (auto& listener : listeners)
       listener->pre_instruction(*this);
-    for (auto& instruction : instructions)
-      instruction->evaluate(*this);
+    auto& i = instructions[(opcode)current_instruction];
+    i->evaluate(*this);
     for (auto& listener : listeners)
       listener->post_instruction(*this);
   }
@@ -180,22 +180,22 @@ void machine::stop()
   state = stopped_machine_state;
 }
 
-char machine::get_instruction(int i)
+word machine::get_instruction(address i)
 {
   return code[i];
 }
 
-int machine::get_pc()
+address machine::get_pc()
 {
   return pc;
 }
 
-void machine::stack_push(char c)
+void machine::stack_push(word c)
 {
   stack.push_front(c);
 }
 
-char machine::stack_peek()
+word machine::stack_peek()
 {
   return stack[0];
 }
@@ -205,22 +205,22 @@ void machine::stack_pop()
   stack.pop_front();
 }
 
-void machine::jump(int i)
+void machine::jump(address i)
 {
   pc = i;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, word *argv[])
 {
   std::cout << "-----" << std::endl;
   {
     // machine m("\x01\x00");
     machine m("\x02\x01\x02\x01\x03\x04");
     m.register_listener(std::move(std::unique_ptr<listener>(new stub_listener())));
-    m.register_instruction(std::move(std::unique_ptr<instruction>(new noop_instruction())));
-    m.register_instruction(std::move(std::unique_ptr<instruction>(new push_instruction())));
-    m.register_instruction(std::move(std::unique_ptr<instruction>(new add_instruction())));
-    m.register_instruction(std::move(std::unique_ptr<instruction>(new display_instruction())));
+    m.register_instruction(noop_opcode, std::move(std::unique_ptr<instruction>(new noop_instruction())));
+    m.register_instruction(push_opcode, std::move(std::unique_ptr<instruction>(new push_instruction())));
+    m.register_instruction(add_opcode, std::move(std::unique_ptr<instruction>(new add_instruction())));
+    m.register_instruction(display_opcode, std::move(std::unique_ptr<instruction>(new display_instruction())));
     while (m.is_running())
       m.step();
   }
