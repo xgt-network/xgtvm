@@ -1,12 +1,16 @@
-#pragma once
+#include <vector>
+#include <map>
+#include <deque>
+#include <iostream>
+#include <sstream>
 
-#include "word.hpp"
-#include "listener.hpp"
+typedef char word;
+typedef int address;
 
 enum opcode {
-  null_opcode = 0x00,
-  noop_opcode = 0x01,
-  push_opcode = 0x02
+  exit_opcode = 0x00,
+  add_opcode = 0x01,
+  push_opcode = 0x60
 };
 
 enum machine_state {
@@ -14,23 +18,16 @@ enum machine_state {
   running_machine_state
 };
 
-// TODO: Notify listeners
 class machine
 {
-  int pc;
+  address pc;
+  std::deque<word> stack;
   machine_state state;
-  std::vector< std::unique_ptr<word> > words;
-  std::vector< std::unique_ptr<listener> > listeners;
+  std::string code;
 
   public:
-  machine() : words(), state(running_machine_state) {}
-  void add_word(std::unique_ptr<word> item);
-  void add_listener(std::unique_ptr<listener> l);
+  machine(std::string c) : pc(0), code(c), state(running_machine_state) {}
   void step();
-  // TODO: Use these
   bool is_running();
-  void stop();
-  // int get_pc();
-  // word& get_word(int i);
-  // void increment_pc();
+  std::string to_json();
 };

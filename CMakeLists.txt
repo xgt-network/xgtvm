@@ -5,5 +5,5 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(xgtvm programs/xgtvm.cpp)
+add_executable(xgtvm programs/xgtvm.cpp libraries/machine.cpp libraries/machine.hpp)
 target_include_directories(xgtvm PRIVATE libraries)

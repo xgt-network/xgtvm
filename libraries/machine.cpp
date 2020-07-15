@@ -1,39 +1,38 @@
 #include "machine.hpp"
 
-void machine::add_word(std::unique_ptr<word> i)
-{
-  words.push_back(std::move(i));
-}
-
-void machine::add_listener(std::unique_ptr<listener> l)
-{
-  listeners.push_back(std::move(l));
-}
-
 void machine::step()
 {
-  if (pc >= words.size() - 1)
+  if (pc > code.size())
   {
     state = stopped_machine_state;
     return;
   }
-  std::unique_ptr<word>& item = words[pc];
+  word current_instruction = code[pc];
+  opcode o = (opcode)current_instruction;
+  pc++;
 
   // Allow to skip evaluation by throwing exception.
   // TODO: Verify this behavior.
-  try
+  word a, b, c;
+  switch (o)
   {
-    for (auto& listener : listeners)
-      listener->pre_word(*this, *item);
-    item->evaluate(*this);
-    for (auto& listener : listeners)
-      listener->post_word(*this, *item);
+    case exit_opcode:
+      state = stopped_machine_state;
+      break;
+    case add_opcode:
+      a = stack.front();
+      stack.pop_front();
+      b = stack.front();
+      stack.pop_front();
+      c = a + b;
+      stack.push_front(c);
+      break;
+    case push_opcode:
+      a = code[pc];
+      pc++;
+      stack.push_front(a);
+      break;
   }
-  catch (std::exception& e)
-  {
-  }
-
-  pc++;
 }
 
 bool machine::is_running()
@@ -41,22 +40,26 @@ bool machine::is_running()
   return state == running_machine_state;
 }
 
-void machine::stop()
+std::string machine::to_json()
 {
-  state = stopped_machine_state;
+  std::stringstream s;
+  s << "{";
+  {
+    s << "\"finalState\":" << "{";
+    {
+      s << "\"pc\":" << pc << ",";
+      s << "\"stack\":" << "[";
+      for (auto it = stack.cbegin(); it != stack.cend(); ++it)
+      {
+        word w = *it;
+        s << "\"" << std::to_string(w) << "\"";
+        if (it + 1 != stack.cend())
+          s << ",";
+      }
+      s << "]";
+    }
+    s << "}";
+  }
+  s << "}";
+  return s.str();
 }
-
-// int machine::get_pc()
-// {
-//   return pc;
-// }
-
-// word machine::get_word(int i)
-// {
-//   return words[i];
-// }
-
-// void machine:increment_pc()
-// {
-//   pc++;
-// }
