@@ -16,7 +16,7 @@ void machine::step()
   word a, b, c;
   switch (o)
   {
-    case exit_opcode:
+    case stop_opcode:
       state = stopped_machine_state;
       break;
     case add_opcode:
@@ -26,6 +26,51 @@ void machine::step()
       stack.pop_front();
       c = a + b;
       stack.push_front(c);
+      break;
+    case mul_opcode:
+      a = stack.front();
+      stack.pop_front();
+      b = stack.front();
+      stack.pop_front();
+      c = a * b;
+      stack.push_front(c);
+      break;
+    case sub_opcode:
+      a = stack.front();
+      stack.pop_front();
+      b = stack.front();
+      stack.pop_front();
+      c = a - b;
+      stack.push_front(c);
+      break;
+    case div_opcode:
+      a = stack.front();
+      stack.pop_front();
+      b = stack.front();
+      stack.pop_front();
+      c = a / b;
+      stack.push_front(c);
+      break;
+    case mod_opcode:
+      a = stack.front();
+      stack.pop_front();
+      b = stack.front();
+      stack.pop_front();
+      c = a % b;
+      stack.push_front(c);
+      break;
+    case lt_opcode:
+      a = stack.front();
+      stack.pop_front();
+      b = stack.front();
+      stack.pop_front();
+      c = a < b;
+      stack.push_front(c);
+      break;
+    case jmpi_opcode:
+      a = stack.front();
+      stack.pop_front();
+      pc = a;
       break;
     case push_opcode:
       a = code[pc];
