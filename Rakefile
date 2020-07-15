@@ -31,7 +31,9 @@ end
 
 desc 'runs the project'
 task :test do
+  # result = xgtvm_eval('0000000000000060 0000000000000003 0000000000000060 0000000000000008 0000000000000001 0000000000000000')
   result = xgtvm_eval('60 03 60 08 01 00')
+  p result
   stack = result.fetch('finalState').fetch('stack')
   raise 'fail' unless stack == ['11']
 end

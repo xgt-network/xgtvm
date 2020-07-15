@@ -21,25 +21,24 @@ word to_hex(std::string str)
   return std::stoi(str, 0, 16);
 }
 
-std::string process_eval_input(const std::string& str)
+std::vector<word> process_eval_input(const std::string& str)
 {
   char delim = ' ';
   std::size_t current, previous = 0;
   std::string token;
-  std::ostringstream s;
+  std::vector<word> tokens;
   current = str.find(delim);
   while (current != std::string::npos) {
-    token = str.substr(previous, current - previous);
-    s << to_hex(token);
+    tokens.push_back( to_hex( str.substr(previous, current - previous) ) );
     previous = current + 1;
     current = str.find(delim, previous);
   }
   token = str.substr(previous, current - previous);
-  s << to_hex(token);
-  return s.str();
+  tokens.push_back( to_hex(token) );
+  return tokens;
 }
 
-int main(int argc, word *argv[])
+int main(int argc, char** argv)
 {
   int c;
   for (;;)
@@ -65,8 +64,7 @@ int main(int argc, word *argv[])
   {}
   if (eval_flag)
   {
-    std::string input = process_eval_input(std::string(eval_string));
-    machine m(input);
+    machine m(process_eval_input(std::string(eval_string)));
     while (m.is_running())
       m.step();
     std::cout << m.to_json() << std::endl;

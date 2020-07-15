@@ -1,10 +1,11 @@
+#include <cstdint>
 #include <vector>
 #include <map>
 #include <deque>
 #include <iostream>
 #include <sstream>
 
-typedef char word;
+typedef uint64_t word;
 typedef int address;
 
 enum opcode {
@@ -41,10 +42,10 @@ class machine
   address pc;
   std::deque<word> stack;
   machine_state state;
-  std::string code;
+  std::vector<word> code;
 
   public:
-  machine(std::string c) : pc(0), code(c), state(running_machine_state) {}
+  machine(std::vector<word> v) : pc(0), code(v), state(running_machine_state) {}
   void step();
   bool is_running();
   std::string to_json();
