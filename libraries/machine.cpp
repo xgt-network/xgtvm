@@ -11,15 +11,19 @@ void machine::step()
   opcode o = (opcode)current_instruction;
   pc++;
 
+  // std::cerr << "step " << std::to_string(pc) << " " << std::to_string(o) << std::endl;
+
   // Allow to skip evaluation by throwing exception.
   // TODO: Verify this behavior.
   word a, b, c;
   switch (o)
   {
     case stop_opcode:
+      // std::cerr << "stop" << std::endl;
       state = stopped_machine_state;
       break;
     case add_opcode:
+      // std::cerr << "add" << std::endl;
       a = stack.front();
       stack.pop_front();
       b = stack.front();
@@ -28,6 +32,7 @@ void machine::step()
       stack.push_front(c);
       break;
     case mul_opcode:
+      // std::cerr << "mul" << std::endl;
       a = stack.front();
       stack.pop_front();
       b = stack.front();
@@ -36,6 +41,7 @@ void machine::step()
       stack.push_front(c);
       break;
     case sub_opcode:
+      // std::cerr << "sub" << std::endl;
       a = stack.front();
       stack.pop_front();
       b = stack.front();
@@ -44,6 +50,7 @@ void machine::step()
       stack.push_front(c);
       break;
     case div_opcode:
+      // std::cerr << "div" << std::endl;
       a = stack.front();
       stack.pop_front();
       b = stack.front();
@@ -52,6 +59,7 @@ void machine::step()
       stack.push_front(c);
       break;
     case mod_opcode:
+      // std::cerr << "mod" << std::endl;
       a = stack.front();
       stack.pop_front();
       b = stack.front();
@@ -60,6 +68,7 @@ void machine::step()
       stack.push_front(c);
       break;
     case lt_opcode:
+      // std::cerr << "lt" << std::endl;
       a = stack.front();
       stack.pop_front();
       b = stack.front();
@@ -68,11 +77,13 @@ void machine::step()
       stack.push_front(c);
       break;
     case jmpi_opcode:
+      // std::cerr << "jmpi" << std::endl;
       a = stack.front();
       stack.pop_front();
       pc = a;
       break;
     case push_opcode:
+      // std::cerr << "push" << std::endl;
       a = code[pc];
       pc++;
       stack.push_front(a);
