@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 
-typedef uint64_t word;
+typedef uint8_t word;
 typedef int address;
 
 enum opcode {
@@ -27,14 +27,28 @@ enum opcode {
   // TODO: sgt 0x13
   // TODO: eq 0x14
   // TODO: Gap...
-  jmpi_opcode = 0x57,
+  timestamp_opcode = 0x42,
   // TODO: Gap...
-  push_opcode = 0x60
+  jumpi_opcode = 0x57,
+  // TODO: Gap...
+  jumpdest_opcode = 0x5b,
+  // TODO: Gap...
+  push1_opcode = 0x60,
+  // TODO: Gap...
+  dup1_opcode = 0x80,
+  // TODO: Gap...
+  swap1_opcode = 0x90,
+  swap2_opcode = 0x91,
 };
 
 enum machine_state {
   stopped_machine_state,
   running_machine_state
+};
+
+struct context
+{
+  uint64_t block_timestamp;
 };
 
 class machine
@@ -43,9 +57,12 @@ class machine
   std::deque<word> stack;
   machine_state state;
   std::vector<word> code;
+  context ctx;
 
   public:
-  machine(std::vector<word> v) : pc(0), code(v), state(running_machine_state) {}
+  machine(context ctx, std::vector<word> v)
+    : ctx(ctx), pc(0), code(v), state(running_machine_state) {}
+  void print_stack();
   void step();
   bool is_running();
   std::string to_json();

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iterator>
 #include "machine.hpp"
+#include "unistd.h"
 
 // Set by --help
 static int help_flag;
@@ -64,9 +65,13 @@ int main(int argc, char** argv)
   {}
   if (eval_flag)
   {
-    machine m(process_eval_input(std::string(eval_string)));
+    context ctx = {0x5c477758};
+    machine m(ctx, process_eval_input(std::string(eval_string)));
     while (m.is_running())
+    {
       m.step();
+      sleep(0.2);
+    }
     std::cout << m.to_json() << std::endl;
   }
 

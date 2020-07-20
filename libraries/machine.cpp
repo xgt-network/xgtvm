@@ -1,5 +1,24 @@
 #include "machine.hpp"
 
+template <typename T>
+int get_byte(T x, int n) {
+  return ( x >> (8 * n) ) & 0xFF;
+}
+
+// TODO: Make better
+// TODO: Return string instead?
+void machine::print_stack()
+{
+  for (auto it = stack.cbegin(); it != stack.cend(); ++it)
+  {
+    word w = *it;
+    std::cerr << std::to_string(w);
+    if (it + 1 != stack.cend())
+      std::cerr << " ";
+  }
+  std::cerr << std::endl;
+}
+
 void machine::step()
 {
   if (pc > code.size())
@@ -76,17 +95,54 @@ void machine::step()
       c = a < b;
       stack.push_front(c);
       break;
-    case jmpi_opcode:
-      std::cerr << "jmpi" << std::endl;
+    case timestamp_opcode:
+      std::cerr << "timestamp" << std::endl;
+      stack.push_front(get_byte(ctx.block_timestamp, 0));
+      stack.push_front(get_byte(ctx.block_timestamp, 1));
+      stack.push_front(get_byte(ctx.block_timestamp, 2));
+      stack.push_front(get_byte(ctx.block_timestamp, 3));
+      break;
+    case jumpi_opcode:
+      std::cerr << "jumpi" << std::endl;
+      print_stack();
       a = stack.front();
       stack.pop_front();
-      pc = a;
+      b = stack.front();
+      stack.pop_front();
+      if (b != 0)
+        if (code[a] == jumpdest_opcode)
+          pc = a;
       break;
-    case push_opcode:
-      std::cerr << "push" << std::endl;
+    case jumpdest_opcode:
+      break;
+    case push1_opcode:
+      std::cerr << "push1" << std::endl;
       a = code[pc];
       pc++;
       stack.push_front(a);
+      break;
+    case dup1_opcode:
+      a = stack.front();
+      stack.push_front(a);
+      break;
+    case swap1_opcode:
+      a = stack.front();
+      stack.pop_front();
+      b = stack.front();
+      stack.pop_front();
+      stack.push_front(a);
+      stack.push_front(b);
+      break;
+    case swap2_opcode:
+      a = stack.front();
+      stack.pop_front();
+      b = stack.front();
+      stack.pop_front();
+      c = stack.front();
+      stack.pop_front();
+      stack.push_front(a);
+      stack.push_front(b);
+      stack.push_front(c);
       break;
   }
 }
