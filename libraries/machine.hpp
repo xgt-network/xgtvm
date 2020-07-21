@@ -6,6 +6,7 @@
 #include <sstream>
 
 typedef uint8_t word;
+typedef uint64_t big_word;
 typedef int address;
 
 enum opcode {
@@ -14,15 +15,15 @@ enum opcode {
   mul_opcode = 0x02,
   sub_opcode = 0x03,
   div_opcode = 0x04,
-  // TODO: sdiv 0x05
+  sdiv_opcode = 0x05,
   mod_opcode = 0x06,
-  // TODO: smod 0x07
+  smod_opcode = 0x07,
   // TODO: addmod 0x08
   // TODO: mulmod 0x09
   // TODO: exp 0x0a
   // TODO: signextend 0x0b
   lt_opcode = 0x10,
-  // TODO: gt 0x11
+  gt_opcode = 0x11,
   // TODO: slt 0x12
   // TODO: sgt 0x13
   // TODO: eq 0x14
@@ -34,11 +35,17 @@ enum opcode {
   jumpdest_opcode = 0x5b,
   // TODO: Gap...
   push1_opcode = 0x60,
+  push2_opcode = 0x61,
+  push3_opcode = 0x62,
+  push4_opcode = 0x63,
   // TODO: Gap...
   dup1_opcode = 0x80,
   // TODO: Gap...
   swap1_opcode = 0x90,
   swap2_opcode = 0x91,
+  swap3_opcode = 0x92,
+  swap4_opcode = 0x93,
+  // TODO: Gap...
 };
 
 enum machine_state {
@@ -58,6 +65,11 @@ class machine
   machine_state state;
   std::vector<word> code;
   context ctx;
+
+  void push_word(word v);
+  word pop_word();
+  void push_big_word(big_word v);
+  big_word pop_big_word();
 
   public:
   machine(context ctx, std::vector<word> v)
