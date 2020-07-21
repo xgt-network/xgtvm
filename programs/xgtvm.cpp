@@ -7,22 +7,21 @@
 #include "machine.hpp"
 #include "unistd.h"
 
-// Set by --help
-static int help_flag;
-static int eval_flag;
-static char* eval_string;
-static struct option long_options[] = {
-  {"help", no_argument, &help_flag, 1},
-  {"eval", required_argument, 0, 'e'},
-  {0, 0, 0, 0}
-};
-
 word to_hex(std::string str)
 {
   return std::stoi(str, 0, 16);
 }
 
-std::vector<word> process_eval_input(const std::string& str)
+std::string process_stdin()
+{
+  std::cin >> std::noskipws;
+  std::istream_iterator<char> it(std::cin);
+  std::istream_iterator<char> end;
+  std::string results(it, end);
+  return results;
+}
+
+std::vector<word> process_eval(const std::string& str)
 {
   char delim = ' ';
   std::size_t current, previous = 0;
@@ -38,6 +37,16 @@ std::vector<word> process_eval_input(const std::string& str)
   tokens.push_back( to_hex(token) );
   return tokens;
 }
+
+// Set by --help
+static int help_flag;
+static int eval_flag;
+static char* eval_cstr;
+static struct option long_options[] = {
+  {"help", no_argument, &help_flag, 1},
+  {"eval", required_argument, 0, 'e'},
+  {0, 0, 0, 0}
+};
 
 int main(int argc, char** argv)
 {
@@ -55,7 +64,7 @@ int main(int argc, char** argv)
         break;
       case 'e':
         eval_flag = 1;
-        eval_string = optarg;
+        eval_cstr = optarg;
         break;
     }
   }
@@ -63,10 +72,14 @@ int main(int argc, char** argv)
   // TODO: Add a help message
   if (help_flag)
   {}
-  if (eval_flag)
+
+  std::string input = process_stdin();
+  if(eval_flag)
+    input = std::string(eval_cstr);
+  if (input.size() > 0)
   {
     context ctx = {0x5c477758};
-    machine m(ctx, process_eval_input(std::string(eval_string)));
+    machine m(ctx, process_eval(input));
     while (m.is_running())
     {
       m.step();
