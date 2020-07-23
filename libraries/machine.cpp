@@ -1,55 +1,98 @@
 #include "machine.hpp"
 
-template <typename T>
-word get_byte(T x, word n)
+union int_aliaser
+{
+  uint64_t u;
+  int64_t i;
+};
+
+uint64_t alias_to_uint64_t(int64_t i)
+{
+  int_aliaser aliaser;
+  aliaser.i = i;
+  return aliaser.u;
+}
+
+int64_t alias_to_int64_t(uint64_t u)
+{
+  int_aliaser aliaser;
+  aliaser.u = u;
+  return aliaser.i;
+}
+
+int get_byte(uint64_t x, int n)
 {
   return ( x >> (8 * n) ) & 0xFF;
 }
 
-template <typename T>
-T set_byte(T x, word n, word v)
+void set_byte(uint64_t& x, int n, int v)
 {
-  T mask = v << (8 * n);
-  return (x & ~mask) | (v << (8 * n));
+  uint64_t mask = v << (8 * n);
+  x = (x & ~mask) | (v << (8 * n));
 }
 
-template <typename T>
-T make_t(std::vector<int> bytes)
+big_word to_big_word(word a)
 {
-  T x = 0;
-  for (int i = 0; i < bytes.size(); i++)
-    x = set_byte(x, i, bytes[i]);
-  return x;
+  return a;
 }
 
-void machine::push_word(word v)
+big_word to_big_word(word a, word b)
+{
+  big_word va = 0;
+  set_byte(va, 0, a);
+  set_byte(va, 1, b);
+  return va;
+}
+
+big_word to_big_word(word a, word b, word c, word d)
+{
+  big_word va = 0;
+  set_byte(va, 0, a);
+  set_byte(va, 1, b);
+  set_byte(va, 2, c);
+  set_byte(va, 3, d);
+  return va;
+}
+
+big_word to_big_word(word a, word b, word c, word d, word e, word f, word g, word h)
+{
+  big_word va = 0;
+  set_byte(va, 0, a);
+  set_byte(va, 1, b);
+  set_byte(va, 2, c);
+  set_byte(va, 3, d);
+  set_byte(va, 4, e);
+  set_byte(va, 5, f);
+  set_byte(va, 6, g);
+  set_byte(va, 7, h);
+  return va;
+}
+
+std::string inspect(std::vector<word> words)
+{
+  std::stringstream ss;
+  ss << "[";
+  for (int i = 0; i < words.size(); i++)
+  {
+    // TODO: Print hex
+    ss << std::to_string(words.at(i));
+    if (i != words.size() - 1)
+      ss << ", ";
+  }
+  ss << "]";
+  return ss.str();
+}
+
+void machine::push_word(big_word v)
 {
   stack.push_front(v);
 }
 
-word machine::pop_word()
+big_word machine::pop_word()
 {
-  word a = stack.front();
+  big_word v = stack.front();
   stack.pop_front();
-  return a;
-}
-
-void machine::push_big_word(big_word v)
-{
-  push_word(get_byte(v, 0));
-  push_word(get_byte(v, 1));
-  push_word(get_byte(v, 2));
-  push_word(get_byte(v, 3));
-}
-
-big_word machine::pop_big_word()
-{
-  word a = pop_word();
-  word b = pop_word();
-  word c = pop_word();
-  word d = pop_word();
-  std::vector<int> words = { a, b, c, d };
-  return make_t<uint64_t>(words);
+  return v;
 }
 
 // TODO: Make better
@@ -82,7 +125,7 @@ void machine::step()
   // Allow to skip evaluation by throwing exception.
   // TODO: Verify this behavior.
   word a, b, c, d, e;
-  big_word va, vb, vc;
+  big_word va, vb, vc, vd, ve;
   switch (o)
   {
     case stop_opcode:
@@ -91,80 +134,117 @@ void machine::step()
       break;
     case add_opcode:
       std::cerr << "add" << std::endl;
-      a = pop_word();
-      b = pop_word();
-      c = a + b;
-      push_word(c);
+      va = pop_word();
+      vb = pop_word();
+      vc = va + vb;
+      push_word(vc);
       break;
     case mul_opcode:
       std::cerr << "mul" << std::endl;
-      a = pop_word();
-      b = pop_word();
-      c = a * b;
-      push_word(c);
+      va = pop_word();
+      vb = pop_word();
+      vc = va * vb;
+      push_word(vc);
       break;
     case sub_opcode:
       std::cerr << "sub" << std::endl;
-      a = pop_word();
-      b = pop_word();
-      c = a - b;
-      push_word(c);
+      va = pop_word();
+      vb = pop_word();
+      vc = va - vb;
+      push_word(vc);
       break;
     case div_opcode:
       std::cerr << "div" << std::endl;
-      a = pop_word();
-      b = pop_word();
-      c = a / b;
-      push_word(c);
+      va = pop_word();
+      vb = pop_word();
+      vc = va / vb;
+      push_word(vc);
       break;
     case sdiv_opcode:
-      std::cerr << "sdiv" << std::endl;
-      va = pop_big_word();
-      vb = pop_big_word();
-      vc = a / b;
-      push_big_word(vc);
+      va = alias_to_int64_t( pop_word() );
+      vb = alias_to_int64_t( pop_word() );
+      vc = va / vb;
+      push_word( alias_to_uint64_t(vc) );
       break;
     case mod_opcode:
       std::cerr << "mod" << std::endl;
-      a = pop_word();
-      b = pop_word();
-      c = a % b;
-      push_word(c);
-      stack.push_front(c);
+      va = pop_word();
+      vb = pop_word();
+      vc = va % vb;
+      push_word(vc);
       break;
     case smod_opcode:
       std::cerr << "smod" << std::endl;
-      va = pop_big_word();
-      vb = pop_big_word();
+      va = alias_to_int64_t( pop_word() );
+      vb = alias_to_int64_t( pop_word() );
       vc = va % vb;
-      push_big_word(vc);
+      push_word( alias_to_uint64_t(vc) );
       break;
     case lt_opcode:
       std::cerr << "lt" << std::endl;
-      a = pop_word();
-      b = pop_word();
-      c = a < b;
-      push_word(c);
+      va = pop_word();
+      vb = pop_word();
+      vc = va < vb;
+      push_word(vc);
       break;
     case gt_opcode:
       std::cerr << "gt" << std::endl;
-      a = pop_word();
-      b = pop_word();
-      c = a > b;
-      push_word(c);
+      va = pop_word();
+      vb = pop_word();
+      vc = va > vb;
+      push_word(vc);
       break;
     case timestamp_opcode:
       std::cerr << "timestamp" << std::endl;
-      push_big_word(ctx.block_timestamp);
+      push_word(ctx.block_timestamp);
       break;
     case jumpi_opcode:
       std::cerr << "jumpi" << std::endl;
       print_stack();
-      a = pop_word();
-      b = pop_word();
-      if (b != 0)
+      va = pop_word();
+      vb = pop_word();
+      if (vb != 0)
         if (code[a] == jumpdest_opcode)
-          pc = a;
+          pc = va;
+      break;
+    case mload_opcode:
+      std::cerr << "mload" << std::endl;
+      va = pop_word(); // offset
+      if (va + 8 >= memory.size())
+      {
+        state = error_machine_state;
+        error_message = "Memory overflow";
+      }
+      // TODO: Verify order
+      vb = to_big_word(
+        memory[va + 7],
+        memory[va + 6],
+        memory[va + 5],
+        memory[va + 4],
+        memory[va + 3],
+        memory[va + 2],
+        memory[va + 1],
+        memory[va + 0]
+      );
+      push_word(vb);
+      break;
+    case mstore_opcode:
+      std::cerr << "mstore" << std::endl;
+      va = pop_word(); // offset
+      vb = pop_word(); // value
+      std::cerr << "memory before: " << inspect(memory) << std::endl;
+      if (va + 8 >= memory.size())
+        memory.resize(va + 8);
+      // TODO: Verify order
+      memory[va + 0] = get_byte(vb, 7);
+      memory[va + 1] = get_byte(vb, 6);
+      memory[va + 2] = get_byte(vb, 5);
+      memory[va + 3] = get_byte(vb, 4);
+      memory[va + 4] = get_byte(vb, 3);
+      memory[va + 5] = get_byte(vb, 2);
+      memory[va + 6] = get_byte(vb, 1);
+      memory[va + 7] = get_byte(vb, 0);
+      std::cerr << "memory after: " << inspect(memory) << std::endl;
       break;
     case jumpdest_opcode:
       std::cerr << "jumpdest" << std::endl;
@@ -181,8 +261,8 @@ void machine::step()
       pc++;
       b = code[pc];
       pc++;
-      push_word(a);
-      push_word(b);
+      va = to_big_word(0, 0, a, b); // TODO: Verify
+      push_word(va);
       break;
     case push3_opcode:
       std::cerr << "push3" << std::endl;
@@ -192,9 +272,8 @@ void machine::step()
       pc++;
       c = code[pc];
       pc++;
-      push_word(a);
-      push_word(b);
-      push_word(c);
+      va = to_big_word(0, a, b, c); // TODO: Verify
+      push_word(va);
       break;
     case push4_opcode:
       std::cerr << "push4" << std::endl;
@@ -206,10 +285,7 @@ void machine::step()
       pc++;
       d = code[pc];
       pc++;
-      push_word(a);
-      push_word(b);
-      push_word(c);
-      push_word(d);
+      va = to_big_word(a, b, c, d); // TODO: Verify
       break;
     case dup1_opcode:
       a = stack.front();

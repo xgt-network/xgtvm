@@ -27,10 +27,14 @@ enum opcode {
   // TODO: slt 0x12
   // TODO: sgt 0x13
   // TODO: eq 0x14
+  // TODO: iszero 0x15
   // TODO: Gap...
   timestamp_opcode = 0x42,
   // TODO: Gap...
   jumpi_opcode = 0x57,
+  // TODO: Gap...
+  mload_opcode = 0x51,
+  mstore_opcode = 0x52,
   // TODO: Gap...
   jumpdest_opcode = 0x5b,
   // TODO: Gap...
@@ -50,7 +54,8 @@ enum opcode {
 
 enum machine_state {
   stopped_machine_state,
-  running_machine_state
+  running_machine_state,
+  error_machine_state
 };
 
 struct context
@@ -61,19 +66,22 @@ struct context
 class machine
 {
   address pc;
-  std::deque<word> stack;
+  std::deque<big_word> stack;
   machine_state state;
   std::vector<word> code;
+  std::vector<word> memory;
   context ctx;
+  std::string error_message;
 
-  void push_word(word v);
-  word pop_word();
-  void push_big_word(big_word v);
-  big_word pop_big_word();
+  void push_word(big_word v);
+  big_word pop_word();
 
   public:
   machine(context ctx, std::vector<word> v)
-    : ctx(ctx), pc(0), code(v), state(running_machine_state) {}
+    : ctx(ctx), pc(0), code(v), state(running_machine_state)
+  {
+  }
+
   void print_stack();
   void step();
   bool is_running();
