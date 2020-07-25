@@ -7,3 +7,5 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(xgtvm programs/xgtvm.cpp libraries/machine.cpp libraries/machine.hpp)
 target_include_directories(xgtvm PRIVATE libraries)
+add_executable(xgtvm_tests programs/xgtvm_tests.cpp libraries/machine.cpp libraries/machine.hpp)
+target_include_directories(xgtvm_tests PRIVATE libraries)

@@ -32,6 +32,8 @@ end
 
 desc 'runs the project'
 task :test do
+  sh %(cd build && ./xgtvm_tests)
+
   # result = xgtvm_eval('60 03 60 08 01 00')
   result = xgtvm_eval('42 00')
   p result
@@ -49,4 +51,4 @@ task :test do
   # raise 'fail' unless stack == []
 end
 
-task :default => [:configure, :make]
+task :default => [:configure, :make, :test]

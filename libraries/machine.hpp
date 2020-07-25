@@ -5,6 +5,9 @@
 #include <iostream>
 #include <sstream>
 
+namespace machine
+{
+
 typedef uint8_t word;
 typedef uint64_t big_word;
 typedef int address;
@@ -52,14 +55,15 @@ enum opcode {
   // TODO: Gap...
 };
 
-enum machine_state {
-  stopped_machine_state,
-  running_machine_state,
-  error_machine_state
+enum class machine_state {
+  stopped,
+  running,
+  error
 };
 
 struct context
 {
+  bool is_debug;
   uint64_t block_timestamp;
 };
 
@@ -72,18 +76,24 @@ class machine
   std::vector<word> memory;
   context ctx;
   std::string error_message;
+  std::stringstream logger;
 
   void push_word(big_word v);
   big_word pop_word();
+  void log(std::string output);
 
   public:
   machine(context ctx, std::vector<word> v)
-    : ctx(ctx), pc(0), code(v), state(running_machine_state)
+    : ctx(ctx), pc(0), code(v), state(machine_state::running)
   {
   }
 
   void print_stack();
   void step();
   bool is_running();
+  machine_state get_state();
+  std::stringstream& get_logger();
   std::string to_json();
 };
+
+}

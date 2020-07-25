@@ -1,3 +1,8 @@
+## TODO
+
+* Disable-able debug logging
+* Variants on stack
+
 ```sh
 sudo apt-get install -y build-essential cmake jq
 ```

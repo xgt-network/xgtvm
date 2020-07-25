@@ -1,5 +1,8 @@
 #include "machine.hpp"
 
+namespace machine
+{
+
 union int_aliaser
 {
   uint64_t u;
@@ -102,25 +105,25 @@ void machine::print_stack()
   for (auto it = stack.cbegin(); it != stack.cend(); ++it)
   {
     word w = *it;
-    std::cerr << std::to_string(w);
+    logger << std::to_string(w);
     if (it + 1 != stack.cend())
-      std::cerr << " ";
+      logger << " ";
   }
-  std::cerr << std::endl;
+  logger << std::endl;
 }
 
 void machine::step()
 {
   if (pc > code.size())
   {
-    state = stopped_machine_state;
+    state = machine_state::stopped;
     return;
   }
   word current_instruction = code[pc];
   opcode o = (opcode)current_instruction;
   pc++;
 
-  std::cerr << "step " << std::to_string(pc) << " " << std::to_string(o) << std::endl;
+  logger << "step pc " << std::to_string(pc) << " opcode " << std::hex << o  << std::dec << std::endl;
 
   // Allow to skip evaluation by throwing exception.
   // TODO: Verify this behavior.
@@ -129,77 +132,78 @@ void machine::step()
   switch (o)
   {
     case stop_opcode:
-      std::cerr << "stop" << std::endl;
-      state = stopped_machine_state;
+      logger << "op stop" << std::endl;
+      state = machine_state::stopped;
       break;
     case add_opcode:
-      std::cerr << "add" << std::endl;
+      logger << "op add" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va + vb;
       push_word(vc);
       break;
     case mul_opcode:
-      std::cerr << "mul" << std::endl;
+      logger << "op mul" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va * vb;
       push_word(vc);
       break;
     case sub_opcode:
-      std::cerr << "sub" << std::endl;
+      logger << "op sub" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va - vb;
       push_word(vc);
       break;
     case div_opcode:
-      std::cerr << "div" << std::endl;
+      logger << "op div" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va / vb;
       push_word(vc);
       break;
     case sdiv_opcode:
+      logger << "op sdiv" << std::endl;
       va = alias_to_int64_t( pop_word() );
       vb = alias_to_int64_t( pop_word() );
       vc = va / vb;
       push_word( alias_to_uint64_t(vc) );
       break;
     case mod_opcode:
-      std::cerr << "mod" << std::endl;
+      logger << "op mod" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va % vb;
       push_word(vc);
       break;
     case smod_opcode:
-      std::cerr << "smod" << std::endl;
+      logger << "op smod" << std::endl;
       va = alias_to_int64_t( pop_word() );
       vb = alias_to_int64_t( pop_word() );
       vc = va % vb;
       push_word( alias_to_uint64_t(vc) );
       break;
     case lt_opcode:
-      std::cerr << "lt" << std::endl;
+      logger << "op lt" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va < vb;
       push_word(vc);
       break;
     case gt_opcode:
-      std::cerr << "gt" << std::endl;
+      logger << "op gt" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va > vb;
       push_word(vc);
       break;
     case timestamp_opcode:
-      std::cerr << "timestamp" << std::endl;
+      logger << "op timestamp" << std::endl;
       push_word(ctx.block_timestamp);
       break;
     case jumpi_opcode:
-      std::cerr << "jumpi" << std::endl;
+      logger << "op jumpi" << std::endl;
       print_stack();
       va = pop_word();
       vb = pop_word();
@@ -208,11 +212,11 @@ void machine::step()
           pc = va;
       break;
     case mload_opcode:
-      std::cerr << "mload" << std::endl;
+      logger << "op mload" << std::endl;
       va = pop_word(); // offset
       if (va + 8 >= memory.size())
       {
-        state = error_machine_state;
+        state = machine_state::error;
         error_message = "Memory overflow";
       }
       // TODO: Verify order
@@ -229,10 +233,10 @@ void machine::step()
       push_word(vb);
       break;
     case mstore_opcode:
-      std::cerr << "mstore" << std::endl;
+      logger << "op mstore" << std::endl;
       va = pop_word(); // offset
       vb = pop_word(); // value
-      std::cerr << "memory before: " << inspect(memory) << std::endl;
+      logger << "memory before: " << inspect(memory) << std::endl;
       if (va + 8 >= memory.size())
         memory.resize(va + 8);
       // TODO: Verify order
@@ -244,19 +248,19 @@ void machine::step()
       memory[va + 5] = get_byte(vb, 2);
       memory[va + 6] = get_byte(vb, 1);
       memory[va + 7] = get_byte(vb, 0);
-      std::cerr << "memory after: " << inspect(memory) << std::endl;
+      logger << "memory after: " << inspect(memory) << std::endl;
       break;
     case jumpdest_opcode:
-      std::cerr << "jumpdest" << std::endl;
+      logger << "op jumpdest" << std::endl;
       break;
     case push1_opcode:
-      std::cerr << "push1" << std::endl;
+      logger << "op push1" << std::endl;
       a = code[pc];
       pc++;
       push_word(a);
       break;
     case push2_opcode:
-      std::cerr << "push2" << std::endl;
+      logger << "op push2" << std::endl;
       a = code[pc];
       pc++;
       b = code[pc];
@@ -265,7 +269,7 @@ void machine::step()
       push_word(va);
       break;
     case push3_opcode:
-      std::cerr << "push3" << std::endl;
+      logger << "op push3" << std::endl;
       a = code[pc];
       pc++;
       b = code[pc];
@@ -276,7 +280,7 @@ void machine::step()
       push_word(va);
       break;
     case push4_opcode:
-      std::cerr << "push4" << std::endl;
+      logger << "op push4" << std::endl;
       a = code[pc];
       pc++;
       b = code[pc];
@@ -288,16 +292,19 @@ void machine::step()
       va = to_big_word(a, b, c, d); // TODO: Verify
       break;
     case dup1_opcode:
+      logger << "op dup1" << std::endl;
       a = stack.front();
       push_word(a);
       break;
     case swap1_opcode:
+      logger << "op swap1" << std::endl;
       a = pop_word();
       b = pop_word();
       push_word(a);
       push_word(b);
       break;
     case swap2_opcode:
+      logger << "op swap2" << std::endl;
       a = pop_word();
       b = pop_word();
       c = pop_word();
@@ -306,6 +313,7 @@ void machine::step()
       push_word(c);
       break;
     case swap3_opcode:
+      logger << "op swap3" << std::endl;
       a = pop_word();
       b = pop_word();
       c = pop_word();
@@ -316,6 +324,7 @@ void machine::step()
       push_word(d);
       break;
     case swap4_opcode:
+      logger << "op swap4" << std::endl;
       a = pop_word();
       b = pop_word();
       c = pop_word();
@@ -330,9 +339,19 @@ void machine::step()
   }
 }
 
+machine_state machine::get_state()
+{
+  return state;
+}
+
+std::stringstream& machine::get_logger()
+{
+  return logger;
+}
+
 bool machine::is_running()
 {
-  return state == running_machine_state;
+  return state == machine_state::running;
 }
 
 std::string machine::to_json()
@@ -357,4 +376,6 @@ std::string machine::to_json()
   }
   s << "}";
   return s.str();
+}
+
 }

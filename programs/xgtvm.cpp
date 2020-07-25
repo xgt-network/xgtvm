@@ -7,11 +7,6 @@
 #include "machine.hpp"
 #include "unistd.h"
 
-word to_hex(std::string str)
-{
-  return std::stoi(str, 0, 16);
-}
-
 std::string process_stdin()
 {
   std::cin >> std::noskipws;
@@ -21,12 +16,17 @@ std::string process_stdin()
   return results;
 }
 
-std::vector<word> process_eval(const std::string& str)
+machine::word to_hex(std::string str)
+{
+  return std::stoi(str, 0, 16);
+}
+
+std::vector<machine::word> process_eval(const std::string& str)
 {
   char delim = ' ';
   std::size_t current, previous = 0;
   std::string token;
-  std::vector<word> tokens;
+  std::vector<machine::word> tokens;
   current = str.find(delim);
   while (current != std::string::npos) {
     tokens.push_back( to_hex( str.substr(previous, current - previous) ) );
@@ -38,13 +38,17 @@ std::vector<word> process_eval(const std::string& str)
   return tokens;
 }
 
-// Set by --help
-static int help_flag;
+// Set by --debug or -d
+static int debug_flag;
+// Set by --eval or -e
 static int eval_flag;
 static char* eval_cstr;
+// Set by --help or -h
+static int help_flag;
 static struct option long_options[] = {
-  {"help", no_argument, &help_flag, 1},
   {"eval", required_argument, 0, 'e'},
+  {"debug", no_argument, &debug_flag, 'd'},
+  {"help", no_argument, &help_flag, 1},
   {0, 0, 0, 0}
 };
 
@@ -54,17 +58,20 @@ int main(int argc, char** argv)
   for (;;)
   {
     int option_index = 0;
-    c = getopt_long(argc, argv, "he:", long_options, &option_index);
+    c = getopt_long(argc, argv, "de:h", long_options, &option_index);
     if (c == -1)
       break;
     switch(c)
     {
-      case 'h':
-        help_flag = 1;
+      case 'd':
+        debug_flag = 1;
         break;
       case 'e':
         eval_flag = 1;
         eval_cstr = optarg;
+        break;
+      case 'h':
+        help_flag = 1;
         break;
     }
   }
@@ -78,12 +85,19 @@ int main(int argc, char** argv)
     input = std::string(eval_cstr);
   if (input.size() > 0)
   {
-    context ctx = {0x5c477758};
-    machine m(ctx, process_eval(input));
+    machine::context ctx = {0x5c477758};
+    std::vector<machine::word> code = process_eval(input);
+    machine::machine m(ctx, code);
     while (m.is_running())
     {
       m.step();
-      sleep(0.2);
+      // Print out any logging that was generated
+      if (debug_flag)
+      {
+        std::string line;
+        while ( std::getline(m.get_logger(), line) )
+          std::cerr << "\e[36m" << "LOG: " << line << "\e[0m" << std::endl;
+      }
     }
     std::cout << m.to_json() << std::endl;
   }
