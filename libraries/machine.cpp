@@ -217,7 +217,7 @@ void machine::step()
       if (va + 8 >= memory.size())
       {
         state = machine_state::error;
-        error_message = "Memory overflow";
+        error_message.emplace("Memory overflow");
       }
       // TODO: Verify order
       vb = to_big_word(
@@ -366,11 +366,15 @@ std::string machine::to_json()
       for (auto it = stack.cbegin(); it != stack.cend(); ++it)
       {
         word w = *it;
-        s << "\"" << std::to_string(w) << "\"";
+        s << std::to_string(w);
         if (it + 1 != stack.cend())
           s << ",";
       }
-      s << "]";
+      s << "],";
+      if (error_message == boost::none)
+        s << "\"error_message\":" << "null";
+      else
+        s << "\"error_message\":" << "\"" << error_message.value() << "\"";
     }
     s << "}";
   }

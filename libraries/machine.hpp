@@ -4,6 +4,8 @@
 #include <deque>
 #include <iostream>
 #include <sstream>
+#include <boost/optional.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 
 namespace machine
 {
@@ -75,7 +77,7 @@ class machine
   std::vector<word> code;
   std::vector<word> memory;
   context ctx;
-  std::string error_message;
+  boost::optional<std::string> error_message;
   std::stringstream logger;
 
   void push_word(big_word v);
