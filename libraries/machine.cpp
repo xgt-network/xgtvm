@@ -336,6 +336,16 @@ void machine::step()
       push_word(b);
       push_word(e);
       break;
+    case return_opcode:
+      a = pop_word(); // offset
+      b = pop_word(); // length
+      return_value.resize(b);
+      // TODO: Bounds checking
+      // TODO: Check if size needs to be capped
+      for (int i = 0; i < return_value.size(); i++)
+        return_value[i] = memory[a + i];
+      state = machine_state::stopped;
+      break;
   }
 }
 
@@ -371,10 +381,19 @@ std::string machine::to_json()
           s << ",";
       }
       s << "],";
+      s << "\"returnValue\":" << "[";
+      for (auto it = return_value.cbegin(); it != return_value.cend(); ++it)
+      {
+        word w = *it;
+        s << std::to_string(w);
+        if (it + 1 != return_value.cend())
+          s << ",";
+      }
+      s << "],";
       if (error_message == boost::none)
-        s << "\"error_message\":" << "null";
+        s << "\"exceptionError\":" << "null";
       else
-        s << "\"error_message\":" << "\"" << error_message.value() << "\"";
+        s << "\"exceptionError\":" << "\"" << error_message.value() << "\"";
     }
     s << "}";
   }

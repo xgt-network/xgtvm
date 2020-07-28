@@ -55,6 +55,8 @@ enum opcode {
   swap3_opcode = 0x92,
   swap4_opcode = 0x93,
   // TODO: Gap...
+  return_opcode = 0xf3,
+  // TODO: Gap...
 };
 
 enum class machine_state {
@@ -76,6 +78,7 @@ class machine
   machine_state state;
   std::vector<word> code;
   std::vector<word> memory;
+  std::vector<word> return_value;
   context ctx;
   boost::optional<std::string> error_message;
   std::stringstream logger;
