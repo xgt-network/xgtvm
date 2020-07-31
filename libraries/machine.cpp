@@ -116,6 +116,7 @@ void machine::step()
 {
   if (pc > code.size())
   {
+    logger << "stop" << std::endl;
     state = machine_state::stopped;
     return;
   }
@@ -164,6 +165,7 @@ void machine::step()
       push_word(vc);
       break;
     case sdiv_opcode:
+      // TODO: Must handle up to 256-bit ints
       logger << "op sdiv" << std::endl;
       va = alias_to_int64_t( pop_word() );
       vb = alias_to_int64_t( pop_word() );
@@ -178,6 +180,7 @@ void machine::step()
       push_word(vc);
       break;
     case smod_opcode:
+      // TODO: Must handle up to 256-bit ints
       logger << "op smod" << std::endl;
       va = alias_to_int64_t( pop_word() );
       vb = alias_to_int64_t( pop_word() );
@@ -337,11 +340,15 @@ void machine::step()
       push_word(e);
       break;
     case return_opcode:
+      logger << "op return" << std::endl;
       a = pop_word(); // offset
       b = pop_word(); // length
+      logger << std::to_string(a) << std::endl;
+      logger << std::to_string(b) << std::endl;
       return_value.resize(b);
       // TODO: Bounds checking
       // TODO: Check if size needs to be capped
+      // TODO: Optimize
       for (int i = 0; i < return_value.size(); i++)
         return_value[i] = memory[a + i];
       state = machine_state::stopped;

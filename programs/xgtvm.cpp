@@ -88,17 +88,20 @@ int main(int argc, char** argv)
     machine::context ctx = {0x5c477758};
     std::vector<machine::word> code = process_eval(input);
     machine::machine m(ctx, code);
+    std::string line;
     while (m.is_running())
     {
+      std::cerr << "step\n";
       m.step();
       // Print out any logging that was generated
       if (debug_flag)
       {
-        std::string line;
         while ( std::getline(m.get_logger(), line) )
           std::cerr << "\e[36m" << "LOG: " << line << "\e[0m" << std::endl;
       }
     }
+    while ( std::getline(m.get_logger(), line) )
+      std::cerr << "\e[36m" << "LOG: " << line << "\e[0m" << std::endl;
     std::cout << m.to_json() << std::endl;
   }
 
