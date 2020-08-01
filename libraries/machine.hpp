@@ -11,8 +11,8 @@ namespace machine
 {
 
 typedef uint8_t word;
-typedef uint64_t big_word;
-typedef int address;
+typedef boost::multiprecision::uint256_t big_word;
+typedef boost::multiprecision::int256_t signed_big_word;
 
 enum opcode {
   stop_opcode = 0x00,
@@ -73,7 +73,7 @@ struct context
 
 class machine
 {
-  address pc;
+  size_t pc;
   std::deque<big_word> stack;
   machine_state state;
   std::vector<word> code;

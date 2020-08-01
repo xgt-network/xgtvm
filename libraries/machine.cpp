@@ -3,35 +3,34 @@
 namespace machine
 {
 
-union int_aliaser
+boost::multiprecision::uint256_t alias_to_uint256_t(boost::multiprecision::int256_t i)
 {
-  uint64_t u;
-  int64_t i;
-};
-
-uint64_t alias_to_uint64_t(int64_t i)
-{
-  int_aliaser aliaser;
-  aliaser.i = i;
-  return aliaser.u;
+  return (boost::multiprecision::uint256_t)i;
 }
 
-int64_t alias_to_int64_t(uint64_t u)
+boost::multiprecision::int256_t alias_to_int256_t(boost::multiprecision::uint256_t u)
 {
-  int_aliaser aliaser;
-  aliaser.u = u;
-  return aliaser.i;
+  return (boost::multiprecision::int256_t)u;
 }
 
-int get_byte(uint64_t x, int n)
+uint8_t get_byte(boost::multiprecision::uint256_t x, int n)
 {
-  return ( x >> (8 * n) ) & 0xFF;
+  std::vector<unsigned char> bytes;
+  boost::multiprecision::export_bits(x, std::back_inserter(bytes), 8);
+  return bytes[n];
 }
 
-void set_byte(uint64_t& x, int n, int v)
+void set_byte(boost::multiprecision::uint256_t& x, int n, int v)
 {
-  uint64_t mask = v << (8 * n);
-  x = (x & ~mask) | (v << (8 * n));
+  std::vector<unsigned char> bytes;
+  boost::multiprecision::export_bits(x, std::back_inserter(bytes), 8);
+  bytes[n] = v;
+  boost::multiprecision::import_bits(x, bytes.begin(), bytes.end());
+}
+
+size_t uint256_t_to_size_t(boost::multiprecision::uint256_t& x)
+{
+  return x.convert_to<size_t>();
 }
 
 big_word to_big_word(word a)
@@ -104,8 +103,8 @@ void machine::print_stack()
 {
   for (auto it = stack.cbegin(); it != stack.cend(); ++it)
   {
-    word w = *it;
-    logger << std::to_string(w);
+    big_word w = *it;
+    logger << w;
     if (it + 1 != stack.cend())
       logger << " ";
   }
@@ -130,6 +129,7 @@ void machine::step()
   // TODO: Verify this behavior.
   word a, b, c, d, e;
   big_word va, vb, vc, vd, ve;
+  signed_big_word sa, sb, sc;
   switch (o)
   {
     case stop_opcode:
@@ -165,12 +165,11 @@ void machine::step()
       push_word(vc);
       break;
     case sdiv_opcode:
-      // TODO: Must handle up to 256-bit ints
       logger << "op sdiv" << std::endl;
-      va = alias_to_int64_t( pop_word() );
-      vb = alias_to_int64_t( pop_word() );
-      vc = va / vb;
-      push_word( alias_to_uint64_t(vc) );
+      sa = alias_to_int256_t( pop_word() );
+      sb = alias_to_int256_t( pop_word() );
+      sc = sa / sb;
+      push_word( alias_to_uint256_t(sc) );
       break;
     case mod_opcode:
       logger << "op mod" << std::endl;
@@ -180,12 +179,11 @@ void machine::step()
       push_word(vc);
       break;
     case smod_opcode:
-      // TODO: Must handle up to 256-bit ints
       logger << "op smod" << std::endl;
-      va = alias_to_int64_t( pop_word() );
-      vb = alias_to_int64_t( pop_word() );
-      vc = va % vb;
-      push_word( alias_to_uint64_t(vc) );
+      sa = alias_to_int256_t( pop_word() );
+      sb = alias_to_int256_t( pop_word() );
+      sc = sa % sb;
+      push_word( alias_to_uint256_t(sc) );
       break;
     case lt_opcode:
       logger << "op lt" << std::endl;
@@ -211,47 +209,47 @@ void machine::step()
       va = pop_word();
       vb = pop_word();
       if (vb != 0)
-        if (code[a] == jumpdest_opcode)
-          pc = va;
+        if (code[get_byte(va, 0)] == jumpdest_opcode)
+          pc = get_byte(va, 0);
       break;
     case mload_opcode:
       logger << "op mload" << std::endl;
-      va = pop_word(); // offset
-      if (va + 8 >= memory.size())
-      {
-        state = machine_state::error;
-        error_message.emplace("Memory overflow");
-      }
-      // TODO: Verify order
-      vb = to_big_word(
-        memory[va + 7],
-        memory[va + 6],
-        memory[va + 5],
-        memory[va + 4],
-        memory[va + 3],
-        memory[va + 2],
-        memory[va + 1],
-        memory[va + 0]
-      );
-      push_word(vb);
+      // va = pop_word(); // offset
+      // if (va + 8 >= memory.size())
+      // {
+      //   state = machine_state::error;
+      //   error_message.emplace("Memory overflow");
+      // }
+      // // TODO: Verify order
+      // vb = to_big_word(
+      //   memory[va + 7],
+      //   memory[va + 6],
+      //   memory[va + 5],
+      //   memory[va + 4],
+      //   memory[va + 3],
+      //   memory[va + 2],
+      //   memory[va + 1],
+      //   memory[va + 0]
+      // );
+      // push_word(vb);
       break;
     case mstore_opcode:
       logger << "op mstore" << std::endl;
-      va = pop_word(); // offset
-      vb = pop_word(); // value
-      logger << "memory before: " << inspect(memory) << std::endl;
-      if (va + 8 >= memory.size())
-        memory.resize(va + 8);
-      // TODO: Verify order
-      memory[va + 0] = get_byte(vb, 7);
-      memory[va + 1] = get_byte(vb, 6);
-      memory[va + 2] = get_byte(vb, 5);
-      memory[va + 3] = get_byte(vb, 4);
-      memory[va + 4] = get_byte(vb, 3);
-      memory[va + 5] = get_byte(vb, 2);
-      memory[va + 6] = get_byte(vb, 1);
-      memory[va + 7] = get_byte(vb, 0);
-      logger << "memory after: " << inspect(memory) << std::endl;
+      // va = pop_word(); // offset
+      // vb = pop_word(); // value
+      // logger << "memory before: " << inspect(memory) << std::endl;
+      // if (va + 8 >= memory.size())
+      //   memory.resize(va + 8);
+      // // TODO: Verify order
+      // memory[va + 0] = get_byte(vb, 7);
+      // memory[va + 1] = get_byte(vb, 6);
+      // memory[va + 2] = get_byte(vb, 5);
+      // memory[va + 3] = get_byte(vb, 4);
+      // memory[va + 4] = get_byte(vb, 3);
+      // memory[va + 5] = get_byte(vb, 2);
+      // memory[va + 6] = get_byte(vb, 1);
+      // memory[va + 7] = get_byte(vb, 0);
+      // logger << "memory after: " << inspect(memory) << std::endl;
       break;
     case jumpdest_opcode:
       logger << "op jumpdest" << std::endl;
@@ -296,62 +294,62 @@ void machine::step()
       break;
     case dup1_opcode:
       logger << "op dup1" << std::endl;
-      a = stack.front();
-      push_word(a);
+      va = stack.front();
+      push_word(va);
       break;
     case swap1_opcode:
       logger << "op swap1" << std::endl;
-      a = pop_word();
-      b = pop_word();
+      va = pop_word();
+      vb = pop_word();
       push_word(a);
       push_word(b);
       break;
     case swap2_opcode:
       logger << "op swap2" << std::endl;
-      a = pop_word();
-      b = pop_word();
-      c = pop_word();
-      push_word(a);
-      push_word(b);
-      push_word(c);
+      va = pop_word();
+      vb = pop_word();
+      vc = pop_word();
+      push_word(va);
+      push_word(vb);
+      push_word(vc);
       break;
     case swap3_opcode:
       logger << "op swap3" << std::endl;
-      a = pop_word();
-      b = pop_word();
-      c = pop_word();
-      d = pop_word();
-      push_word(a);
-      push_word(c);
-      push_word(b);
-      push_word(d);
+      va = pop_word();
+      vb = pop_word();
+      vc = pop_word();
+      vd = pop_word();
+      push_word(va);
+      push_word(vc);
+      push_word(vb);
+      push_word(vd);
       break;
     case swap4_opcode:
       logger << "op swap4" << std::endl;
-      a = pop_word();
-      b = pop_word();
-      c = pop_word();
-      d = pop_word();
-      e = pop_word();
-      push_word(a);
-      push_word(d);
-      push_word(c);
-      push_word(b);
-      push_word(e);
+      va = pop_word();
+      vb = pop_word();
+      vc = pop_word();
+      vd = pop_word();
+      ve = pop_word();
+      push_word(va);
+      push_word(vd);
+      push_word(vc);
+      push_word(vb);
+      push_word(ve);
       break;
     case return_opcode:
       logger << "op return" << std::endl;
-      a = pop_word(); // offset
-      b = pop_word(); // length
-      logger << std::to_string(a) << std::endl;
-      logger << std::to_string(b) << std::endl;
-      return_value.resize(b);
-      // TODO: Bounds checking
-      // TODO: Check if size needs to be capped
-      // TODO: Optimize
-      for (int i = 0; i < return_value.size(); i++)
-        return_value[i] = memory[a + i];
-      state = machine_state::stopped;
+      // a = pop_word(); // offset
+      // b = pop_word(); // length
+      // logger << std::to_string(a) << std::endl;
+      // logger << std::to_string(b) << std::endl;
+      // return_value.resize(b);
+      // // TODO: Bounds checking
+      // // TODO: Check if size needs to be capped
+      // // TODO: Optimize
+      // for (int i = 0; i < return_value.size(); i++)
+      //   return_value[i] = memory[a + i];
+      // state = machine_state::stopped;
       break;
   }
 }
@@ -382,8 +380,8 @@ std::string machine::to_json()
       s << "\"stack\":" << "[";
       for (auto it = stack.cbegin(); it != stack.cend(); ++it)
       {
-        word w = *it;
-        s << std::to_string(w);
+        big_word w = *it;
+        s << w;
         if (it + 1 != stack.cend())
           s << ",";
       }
