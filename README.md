@@ -35,14 +35,8 @@ Example finished machine data:
 ```json
 {
   "returnValue": "",
-  "gasUsed": "9",
   "finalState": {
-    "pc": 5,
-    "opcode": {
-      "name": "STOP",
-      "fee": 0,
-      "isAsync": false
-    },
+  "pc": 5,
     "stack": ["8"]
   }
 }
