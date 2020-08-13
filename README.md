@@ -4,7 +4,7 @@
 * Variants on stack
 
 ```sh
-sudo apt-get install -y build-essential cmake jq
+sudo apt-get install -y build-essential cmake jq libboost-all-dev
 ```
 
 ```sh
