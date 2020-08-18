@@ -97,6 +97,11 @@ big_word machine::pop_word()
   return v;
 }
 
+big_word machine::peek_word()
+{
+  return stack.front();
+}
+
 // TODO: Make better
 // TODO: Return string instead?
 void machine::print_stack()
@@ -111,9 +116,14 @@ void machine::print_stack()
   logger << std::endl;
 }
 
+size_t machine::stack_length()
+{
+  return stack.size();
+}
+
 void machine::step()
 {
-  if (pc > code.size())
+  if (code.size() == 0 || pc > code.size())
   {
     logger << "stop" << std::endl;
     state = machine_state::stopped;

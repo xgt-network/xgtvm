@@ -85,7 +85,7 @@ int main(int argc, char** argv)
     input = std::string(eval_cstr);
   if (input.size() > 0)
   {
-    machine::context ctx = {0x5c477758};
+    machine::context ctx = {true, 0x5c477758};
     std::vector<machine::word> code = process_eval(input);
     machine::machine m(ctx, code);
     std::string line;

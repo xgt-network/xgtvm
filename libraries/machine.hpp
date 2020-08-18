@@ -14,7 +14,8 @@ typedef uint8_t word;
 typedef boost::multiprecision::uint256_t big_word;
 typedef boost::multiprecision::int256_t signed_big_word;
 
-enum opcode {
+enum opcode
+{
   stop_opcode = 0x00,
   add_opcode = 0x01,
   mul_opcode = 0x02,
@@ -59,7 +60,8 @@ enum opcode {
   // TODO: Gap...
 };
 
-enum class machine_state {
+enum class machine_state
+{
   stopped,
   running,
   error
@@ -93,7 +95,9 @@ class machine
   {
   }
 
+  big_word peek_word();
   void print_stack();
+  size_t stack_length();
   void step();
   bool is_running();
   machine_state get_state();
