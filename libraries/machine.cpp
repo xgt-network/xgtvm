@@ -195,6 +195,34 @@ void machine::step()
       sc = sa % sb;
       push_word( alias_to_uint256_t(sc) );
       break;
+    case addmod_opcode:
+      logger << "op addmod" << std::endl;
+      va = pop_word();
+      vb = pop_word();
+      vc = pop_word();
+      vd = vb + vc;
+      ve = vd % va;
+      push_word(ve);
+      break;
+    case mulmod_opcode:
+      logger << "op addmod" << std::endl;
+      va = pop_word();
+      vb = pop_word();
+      vc = pop_word();
+      vd = vb * vc;
+      ve = vd % va;
+      push_word(ve);
+      break;
+    case exp_opcode:
+      va = pop_word(); // Exponent
+      vb = pop_word(); // Base
+      vc = 1;
+      for (int i = 0; i < va; i++) {
+        vc *= vb;
+      }
+      push_word(vc);
+      logger << "op exp" << std::endl;
+      break;
     case lt_opcode:
       logger << "op lt" << std::endl;
       va = pop_word();

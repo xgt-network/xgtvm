@@ -24,16 +24,16 @@ enum opcode
   sdiv_opcode = 0x05,
   mod_opcode = 0x06,
   smod_opcode = 0x07,
-  // TODO: addmod 0x08
-  // TODO: mulmod 0x09
-  // TODO: exp 0x0a
-  // TODO: signextend 0x0b
+  addmod_opcode = 0x08,
+  mulmod_opcode = 0x09,
+  exp_opcode = 0x0a,
+  // TODO: signextend 0x0b,
   lt_opcode = 0x10,
   gt_opcode = 0x11,
-  // TODO: slt 0x12
-  // TODO: sgt 0x13
-  // TODO: eq 0x14
-  // TODO: iszero 0x15
+  // TODO: slt 0x12,
+  // TODO: sgt 0x13,
+  // TODO: eq 0x14,
+  // TODO: iszero 0x15,
   // TODO: Gap...
   timestamp_opcode = 0x42,
   // TODO: Gap...
