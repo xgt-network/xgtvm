@@ -200,8 +200,8 @@ void machine::step()
       va = pop_word();
       vb = pop_word();
       vc = pop_word();
-      vd = vb + vc;
-      ve = vd % va;
+      vd = va + vb;
+      ve = vd % vc;
       push_word(ve);
       break;
     case mulmod_opcode:
@@ -209,19 +209,24 @@ void machine::step()
       va = pop_word();
       vb = pop_word();
       vc = pop_word();
-      vd = vb * vc;
-      ve = vd % va;
+      vd = va * vb;
+      ve = vd % vc;
       push_word(ve);
       break;
     case exp_opcode:
-      va = pop_word(); // Exponent
-      vb = pop_word(); // Base
+      // TODO Implement using boost::multiprecision::pow
+      va = pop_word(); // Base
+      vb = pop_word(); // Exponent
       vc = 1;
-      for (int i = 0; i < va; i++) {
-        vc *= vb;
+      for (int i = 0; i < vb; i++) {
+        vc *= va;
       }
       push_word(vc);
       logger << "op exp" << std::endl;
+      break;
+    case signextend_opcode:
+      // TODO
+      logger << "signextend exp" << std::endl;
       break;
     case lt_opcode:
       logger << "op lt" << std::endl;
@@ -236,6 +241,63 @@ void machine::step()
       vb = pop_word();
       vc = va > vb;
       push_word(vc);
+      break;
+    case slt_opcode:
+      // TODO
+      va = pop_word();
+      vb = pop_word();
+      vc = va < vb;
+      push_word(vc);
+      logger << "op stl" << std::endl;
+      break;
+    case sgt_opcode:
+      va = pop_word();
+      vb = pop_word();
+      vc = va > vb;
+      push_word(vc);
+      // TODO
+      logger << "op sgt" << std::endl;
+      break;
+    case eq_opcode:
+      // TODO
+      va = pop_word();
+      vb = pop_word();
+      vc = va == vb;
+      push_word(vc);
+      logger << "op eq" << std::endl;
+      break;
+    case iszero_opcode:
+      va = pop_word();
+      vb = va == 0;
+      push_word(vb);
+      logger << "op iszero" << std::endl;
+      break;
+    case and_opcode:
+      va = pop_word();
+      vb = pop_word();
+      vc = va & vb;
+      push_word(vc);
+      logger << "op and" << std::endl;
+      break;
+    case or_opcode:
+      va = pop_word();
+      vb = pop_word();
+      vc = va | vb;
+      push_word(vc);
+      logger << "op or" << std::endl;
+      break;
+    case xor_opcode:
+      va = pop_word();
+      vb = pop_word();
+      vc = a ^ b;
+      push_word(vc);
+      logger << "op xor" << std::endl;
+      break;
+    case not_opcode:
+      va = pop_word();
+      vb = ~va;
+      push_word(vb);
+      logger << "op not" << std::endl;
       break;
     case timestamp_opcode:
       logger << "op timestamp" << std::endl;
