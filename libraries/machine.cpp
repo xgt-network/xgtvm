@@ -245,18 +245,18 @@ void machine::step()
     case slt_opcode:
       // TODO
       logger << "op stl" << std::endl;
-      va = pop_word();
-      vb = pop_word();
-      vc = va < vb;
-      push_word(vc);
+      sa = alias_to_int256_t( pop_word() );
+      sb = alias_to_int256_t( pop_word() );
+      sc = sa < sb;
+      push_word( alias_to_uint256_t(sc) );
       break;
     case sgt_opcode:
       // TODO
       logger << "op sgt" << std::endl;
-      va = pop_word();
-      vb = pop_word();
-      vc = va > vb;
-      push_word(vc);
+      sa = alias_to_int256_t( pop_word() );
+      sb = alias_to_int256_t( pop_word() );
+      sc = sa > sb;
+      push_word( alias_to_uint256_t(sc) );
       break;
     case eq_opcode:
       // TODO
@@ -330,8 +330,7 @@ void machine::step()
       for (int i = 0; i < sb; i++) {
         sa /= 2;
       }
-      va = alias_to_uint256_t( sa );
-      push_word(va);
+      push_word( alias_to_uint256_t(sa) );
       break;
     case timestamp_opcode:
       logger << "op timestamp" << std::endl;

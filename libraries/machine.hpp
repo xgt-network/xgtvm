@@ -27,7 +27,7 @@ enum opcode
   addmod_opcode = 0x08,
   mulmod_opcode = 0x09,
   exp_opcode = 0x0a,
-  signextend_opcode = 0x0b,
+  signextend_opcode = 0x0b, // TODO
   lt_opcode = 0x10,
   gt_opcode = 0x11,
   slt_opcode = 0x12,
