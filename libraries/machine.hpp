@@ -38,16 +38,45 @@ enum opcode
   or_opcode = 0x17,
   xor_opcode = 0x18,
   not_opcode = 0x19,
-  // TODO: Gap...
-  timestamp_opcode = 0x42,
-  // TODO: Gap...
-  jumpi_opcode = 0x57,
-  // TODO: Gap...
-  mload_opcode = 0x51,
-  mstore_opcode = 0x52,
-  // TODO: Gap...
-  jumpdest_opcode = 0x5b,
-  // TODO: Gap...
+  byte_opcode = 0x1A, // TODO
+  shl_opcode = 0x1B,
+  shr_opcode = 0x1C,
+  sar_opcode = 0x1D,
+  sha3_opcode = 0x20, // TODO
+  address_opcode = 0x30, // TODO
+  balance_opcode = 0x31, // TODO
+  origin_opcode = 0x32, // TODO
+  caller_opcode = 0x33, // TODO
+  callvalue_opcode = 0x34, // TODO
+  calldataload_opcode = 0x35, // TODO
+  calldatasize_opcode = 0x36, // TODO
+  calldatacopy_opcode = 0x37, // TODO
+  codesize_opcode = 0x38, // TODO
+  codecopy_opcode = 0x39, // TODO
+  gasprice_opcode = 0x3A, // TODO energyprice?
+  extcodesize_opcode = 0x3B, // TODO
+  extcodecopy_opcode = 0x3C, // TODO
+  returndatasize_opcode = 0x3D, // TODO
+  returndatacopy_opcode = 0x3E, // TODO
+  extcodehash_opcode = 0x3F, // TODO
+  blockhash_opcode = 0x40, // TODO
+  coinbase_opcode = 0x41, // TODO
+  timestamp_opcode = 0x42, // TODO
+  number_opcode = 0x43, // TODO
+  difficulty_opcode = 0x44, // TODO
+  gaslimit_opcode = 0x45, // TODO energylimit?
+  pop_opcode = 0x50, // TODO
+  mload_opcode = 0x51, // TODO
+  mstore_opcode = 0x52, // TODO
+  mstore8_opcode = 0x53, // TODO
+  sload_opcode = 0x54, // TODO
+  sstore_opcode = 0x55, // TODO
+  jump_opcode = 0x56, // TODO
+  jumpi_opcode = 0x57, 
+  pc_opcode = 0x58, // TODO
+  msize_opcode = 0x59, // TODO
+  gas_opcode = 0x5A, // TODO energy?
+  jumpdest_opcode = 0x5B, // TODO
   push1_opcode = 0x60,
   push2_opcode = 0x61,
   push3_opcode = 0x62,
@@ -60,8 +89,24 @@ enum opcode
   swap3_opcode = 0x92,
   swap4_opcode = 0x93,
   // TODO: Gap...
-  return_opcode = 0xf3,
+  log0_opcode = 0xA0, // TODO
+  log1_opcode = 0xA1, // TODO
+  log2_opcode = 0xA2, // TODO
+  log3_opcode = 0xA3, // TODO
+  log4_opcode = 0xA4, // TODO
+  push_opcode = 0xB0, // TODO
+  dup_opcode = 0xB1, // TODO
+  swap_opcode = 0xB2, // TODO
   // TODO: Gap...
+  create_opcode = 0xF0, // TODO
+  call_opcode = 0xF1, // TODO
+  callcode_opcode = 0xF2, // TODO
+  return_opcode = 0xF3,
+  delegatecall_opcode = 0xF4, // TODO
+  create2_opcode = 0xF5, // TODO
+  staticcall_opcode = 0xFA, // TODO
+  revert_opcode = 0xFD, // TODO
+  selfdestruct_opcode = 0xFF, // TODO
 };
 
 enum class machine_state

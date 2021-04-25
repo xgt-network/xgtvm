@@ -215,6 +215,7 @@ void machine::step()
       break;
     case exp_opcode:
       // TODO Implement using boost::multiprecision::pow
+      logger << "op exp" << std::endl;
       va = pop_word(); // Base
       vb = pop_word(); // Exponent
       vc = 1;
@@ -222,7 +223,6 @@ void machine::step()
         vc *= va;
       }
       push_word(vc);
-      logger << "op exp" << std::endl;
       break;
     case signextend_opcode:
       // TODO
@@ -244,60 +244,94 @@ void machine::step()
       break;
     case slt_opcode:
       // TODO
+      logger << "op stl" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va < vb;
       push_word(vc);
-      logger << "op stl" << std::endl;
       break;
     case sgt_opcode:
+      // TODO
+      logger << "op sgt" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va > vb;
       push_word(vc);
-      // TODO
-      logger << "op sgt" << std::endl;
       break;
     case eq_opcode:
       // TODO
+      logger << "op eq" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va == vb;
       push_word(vc);
-      logger << "op eq" << std::endl;
       break;
     case iszero_opcode:
+      logger << "op iszero" << std::endl;
       va = pop_word();
       vb = va == 0;
       push_word(vb);
-      logger << "op iszero" << std::endl;
       break;
     case and_opcode:
+      logger << "op and" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va & vb;
       push_word(vc);
-      logger << "op and" << std::endl;
       break;
     case or_opcode:
+      logger << "op or" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = va | vb;
       push_word(vc);
-      logger << "op or" << std::endl;
       break;
     case xor_opcode:
+      logger << "op xor" << std::endl;
       va = pop_word();
       vb = pop_word();
       vc = a ^ b;
       push_word(vc);
-      logger << "op xor" << std::endl;
       break;
     case not_opcode:
+      logger << "op not" << std::endl;
       va = pop_word();
       vb = ~va;
       push_word(vb);
-      logger << "op not" << std::endl;
+      break;
+    case byte_opcode:
+      // TODO
+      logger << "op byte" << std::endl;
+      break;
+    case shl_opcode:
+      logger << "op shl" << std::endl;
+      va = pop_word();
+      vb = pop_word();
+      for (int i = 0; i < vb; i++) {
+        va *= 2;
+      }
+      push_word(va);
+      break;
+    case shr_opcode:
+      logger << "op shr" << std::endl;
+      va = pop_word();
+      vb = pop_word();
+      for (int i = 0; i < vb; i++) {
+        va /= 2;
+      }
+      push_word(va);
+      break;
+    case sar_opcode:
+      // TODO REVIEW
+      logger << "op sar" << std::endl;
+      sa = alias_to_int256_t( pop_word() );
+      sb = pop_word();
+      assert(sb >= 0);
+      for (int i = 0; i < sb; i++) {
+        sa /= 2;
+      }
+      va = alias_to_uint256_t( sa );
+      push_word(va);
       break;
     case timestamp_opcode:
       logger << "op timestamp" << std::endl;
