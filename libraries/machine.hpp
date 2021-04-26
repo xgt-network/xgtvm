@@ -81,19 +81,21 @@ enum opcode
   push2_opcode = 0x61,
   push3_opcode = 0x62,
   push4_opcode = 0x63,
-  // TODO: Gap...
+  // TODO push5 - push32
   dup1_opcode = 0x80,
-  // TODO: Gap...
+  // TODO dup2 - dup16
   swap1_opcode = 0x90,
   swap2_opcode = 0x91,
   swap3_opcode = 0x92,
   swap4_opcode = 0x93,
-  // TODO: Gap...
+  // TODO swap5 - swap16
   log0_opcode = 0xA0, // TODO
   log1_opcode = 0xA1, // TODO
   log2_opcode = 0xA2, // TODO
   log3_opcode = 0xA3, // TODO
   log4_opcode = 0xA4, // TODO
+
+  // Generic push/dup/swap opcodes
   push_opcode = 0xB0, // TODO
   dup_opcode = 0xB1, // TODO
   swap_opcode = 0xB2, // TODO

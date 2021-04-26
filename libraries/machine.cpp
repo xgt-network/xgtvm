@@ -226,7 +226,7 @@ void machine::step()
       break;
     case signextend_opcode:
       // TODO
-      logger << "signextend exp" << std::endl;
+      logger << "op signextend" << std::endl;
       break;
     case lt_opcode:
       logger << "op lt" << std::endl;
@@ -243,7 +243,6 @@ void machine::step()
       push_word(vc);
       break;
     case slt_opcode:
-      // TODO
       logger << "op stl" << std::endl;
       sa = alias_to_int256_t( pop_word() );
       sb = alias_to_int256_t( pop_word() );
@@ -251,7 +250,6 @@ void machine::step()
       push_word( alias_to_uint256_t(sc) );
       break;
     case sgt_opcode:
-      // TODO
       logger << "op sgt" << std::endl;
       sa = alias_to_int256_t( pop_word() );
       sb = alias_to_int256_t( pop_word() );
@@ -259,7 +257,6 @@ void machine::step()
       push_word( alias_to_uint256_t(sc) );
       break;
     case eq_opcode:
-      // TODO
       logger << "op eq" << std::endl;
       va = pop_word();
       vb = pop_word();
@@ -305,32 +302,31 @@ void machine::step()
       break;
     case shl_opcode:
       logger << "op shl" << std::endl;
-      va = pop_word();
-      vb = pop_word();
-      for (int i = 0; i < vb; i++) {
-        va *= 2;
-      }
-      push_word(va);
+
+      va = pop_word(); // SHIFT
+      vb = pop_word(); // VALUE
+
+      vc = vb << va.convert_to<size_t>();
+
+      push_word(vc);
       break;
     case shr_opcode:
       logger << "op shr" << std::endl;
-      va = pop_word();
-      vb = pop_word();
-      for (int i = 0; i < vb; i++) {
-        va /= 2;
-      }
-      push_word(va);
+      va = pop_word(); // SHIFT
+      vb = pop_word(); // VALUE
+
+      vc = vb >> va.convert_to<size_t>();
+      push_word(vc);
+
       break;
     case sar_opcode:
-      // TODO REVIEW
       logger << "op sar" << std::endl;
-      sa = alias_to_int256_t( pop_word() );
-      sb = pop_word();
-      assert(sb >= 0);
-      for (int i = 0; i < sb; i++) {
-        sa /= 2;
-      }
-      push_word( alias_to_uint256_t(sa) );
+      sa = alias_to_int256_t( pop_word() ); // SHIFT
+      sb = pop_word(); // VALUE
+
+      sc = sb >> sa.convert_to<size_t>();
+      push_word( alias_to_uint256_t(sc) );
+
       break;
     case timestamp_opcode:
       logger << "op timestamp" << std::endl;
