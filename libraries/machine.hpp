@@ -6,6 +6,7 @@
 #include <sstream>
 #include <boost/optional.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <typeinfo>
 
 namespace machine
 {
@@ -16,6 +17,7 @@ typedef boost::multiprecision::int256_t signed_big_word;
 
 enum opcode
 {
+  // ARITHMETIC
   stop_opcode = 0x00,
   add_opcode = 0x01,
   mul_opcode = 0x02,
@@ -34,6 +36,8 @@ enum opcode
   sgt_opcode = 0x13,
   eq_opcode = 0x14,
   iszero_opcode = 0x15,
+
+  // BITWISE
   and_opcode = 0x16,
   or_opcode = 0x17,
   xor_opcode = 0x18,
@@ -42,6 +46,7 @@ enum opcode
   shl_opcode = 0x1B,
   shr_opcode = 0x1C,
   sar_opcode = 0x1D,
+
   sha3_opcode = 0x20, // TODO
   address_opcode = 0x30, // TODO
   balance_opcode = 0x31, // TODO
@@ -77,18 +82,63 @@ enum opcode
   msize_opcode = 0x59, // TODO
   gas_opcode = 0x5A, // TODO energy?
   jumpdest_opcode = 0x5B, // TODO
+
+  // PUSH
   push1_opcode = 0x60,
   push2_opcode = 0x61,
   push3_opcode = 0x62,
   push4_opcode = 0x63,
-  // TODO push5 - push32
+  push5_opcode = 0x64,
+  push6_opcode = 0x65,
+  push7_opcode = 0x66,
+  push8_opcode = 0x67,
+  push9_opcode = 0x68,
+  push10_opcode = 0x69,
+  push11_opcode = 0x70,
+  push12_opcode = 0x71,
+  push13_opcode = 0x72,
+  push14_opcode = 0x73,
+  push15_opcode = 0x74,
+  push16_opcode = 0x75,
+  // TODO push17-32
+
+  // DUP
   dup1_opcode = 0x80,
-  // TODO dup2 - dup16
+  dup2_opcode = 0x81,
+  dup3_opcode = 0x82,
+  dup4_opcode = 0x83,
+  dup5_opcode = 0x84,
+  dup6_opcode = 0x85,
+  dup7_opcode = 0x86,
+  dup8_opcode = 0x87,
+  dup9_opcode = 0x88,
+  dup10_opcode = 0x89,
+  dup11_opcode = 0x8A,
+  dup12_opcode = 0x8B,
+  dup13_opcode = 0x8C,
+  dup14_opcode = 0x8D,
+  dup15_opcode = 0x8E,
+  dup16_opcode = 0x8F,
+
+  // SWAP
   swap1_opcode = 0x90,
   swap2_opcode = 0x91,
   swap3_opcode = 0x92,
   swap4_opcode = 0x93,
-  // TODO swap5 - swap16
+  swap5_opcode = 0x94,
+  swap6_opcode = 0x95,
+  swap7_opcode = 0x96,
+  swap8_opcode = 0x97,
+  swap9_opcode = 0x98,
+  swap10_opcode = 0x99,
+  swap11_opcode = 0x9A,
+  swap12_opcode = 0x9B,
+  swap13_opcode = 0x9C,
+  swap14_opcode = 0x9D,
+  swap15_opcode = 0x9E,
+  swap16_opcode = 0x9F,
+
+  // LOG
   log0_opcode = 0xA0, // TODO
   log1_opcode = 0xA1, // TODO
   log2_opcode = 0xA2, // TODO
@@ -99,7 +149,7 @@ enum opcode
   push_opcode = 0xB0, // TODO
   dup_opcode = 0xB1, // TODO
   swap_opcode = 0xB2, // TODO
-  // TODO: Gap...
+
   create_opcode = 0xF0, // TODO
   call_opcode = 0xF1, // TODO
   callcode_opcode = 0xF2, // TODO
