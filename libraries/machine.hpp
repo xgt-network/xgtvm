@@ -76,9 +76,9 @@ enum opcode
   mstore8_opcode = 0x53, // TODO
   sload_opcode = 0x54, // TODO
   sstore_opcode = 0x55, // TODO
-  jump_opcode = 0x56, // TODO
+  jump_opcode = 0x56,
   jumpi_opcode = 0x57, 
-  pc_opcode = 0x58, // TODO
+  pc_opcode = 0x58,
   msize_opcode = 0x59, // TODO
   gas_opcode = 0x5A, // TODO energy?
   jumpdest_opcode = 0x5B, // TODO
@@ -94,13 +94,28 @@ enum opcode
   push8_opcode = 0x67,
   push9_opcode = 0x68,
   push10_opcode = 0x69,
-  push11_opcode = 0x70,
-  push12_opcode = 0x71,
-  push13_opcode = 0x72,
-  push14_opcode = 0x73,
-  push15_opcode = 0x74,
-  push16_opcode = 0x75,
-  // TODO push17-32
+  push11_opcode = 0x6A,
+  push12_opcode = 0x6B,
+  push13_opcode = 0x6C,
+  push14_opcode = 0x6D,
+  push15_opcode = 0x6E,
+  push16_opcode = 0x6F,
+  push17_opcode = 0x70,
+  push18_opcode = 0x71,
+  push19_opcode = 0x72,
+  push20_opcode = 0x73,
+  push21_opcode = 0x74,
+  push22_opcode = 0x75,
+  push23_opcode = 0x76,
+  push24_opcode = 0x77,
+  push25_opcode = 0x78,
+  push26_opcode = 0x79,
+  push27_opcode = 0x7A,
+  push28_opcode = 0x7B,
+  push29_opcode = 0x7C,
+  push30_opcode = 0x7D,
+  push31_opcode = 0x7E,
+  push32_opcode = 0x7F,
 
   // DUP
   dup1_opcode = 0x80,
