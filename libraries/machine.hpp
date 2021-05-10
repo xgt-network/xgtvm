@@ -7,6 +7,7 @@
 #include <boost/optional.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <typeinfo>
+#include <bitset>
 
 namespace machine
 {
@@ -29,7 +30,10 @@ enum opcode
   addmod_opcode = 0x08,
   mulmod_opcode = 0x09,
   exp_opcode = 0x0a,
-  signextend_opcode = 0x0b, // TODO
+
+  signextend_opcode = 0x0b, // XXX
+
+  // COMPARISON
   lt_opcode = 0x10,
   gt_opcode = 0x11,
   slt_opcode = 0x12,
@@ -42,35 +46,35 @@ enum opcode
   or_opcode = 0x17,
   xor_opcode = 0x18,
   not_opcode = 0x19,
-  byte_opcode = 0x1A, // TODO
+  byte_opcode = 0x1A, // XXX
   shl_opcode = 0x1B,
   shr_opcode = 0x1C,
   sar_opcode = 0x1D,
 
-  sha3_opcode = 0x20, // TODO
-  address_opcode = 0x30, // TODO
-  balance_opcode = 0x31, // TODO
-  origin_opcode = 0x32, // TODO
-  caller_opcode = 0x33, // TODO
-  callvalue_opcode = 0x34, // TODO
-  calldataload_opcode = 0x35, // TODO
-  calldatasize_opcode = 0x36, // TODO
-  calldatacopy_opcode = 0x37, // TODO
-  codesize_opcode = 0x38, // TODO
-  codecopy_opcode = 0x39, // TODO
-  gasprice_opcode = 0x3A, // TODO energyprice?
-  extcodesize_opcode = 0x3B, // TODO
-  extcodecopy_opcode = 0x3C, // TODO
-  returndatasize_opcode = 0x3D, // TODO
-  returndatacopy_opcode = 0x3E, // TODO
-  extcodehash_opcode = 0x3F, // TODO
-  blockhash_opcode = 0x40, // TODO
-  coinbase_opcode = 0x41, // TODO
-  timestamp_opcode = 0x42, // TODO
-  number_opcode = 0x43, // TODO
-  difficulty_opcode = 0x44, // TODO
-  gaslimit_opcode = 0x45, // TODO energylimit?
-  pop_opcode = 0x50, // TODO
+  sha3_opcode = 0x20, // XXX depends on crypto++ -- needs cmake integration
+  address_opcode = 0x30, // XXX Address of the executing contract -- where is contract information stored?
+  balance_opcode = 0x31, // XXX Look up balance for address on top of stack. Is this an rpc call to the chain?
+  origin_opcode = 0x32, // XXX Transaction origin address
+  caller_opcode = 0x33, // XXX Message caller address
+  callvalue_opcode = 0x34, // XXX Message value/funds
+  calldataload_opcode = 0x35, // XXX Reads a uint256 from message data
+  calldatasize_opcode = 0x36, // XXX Message data lenght in bytes
+  calldatacopy_opcode = 0x37, // XXX Copy message data to memory
+  codesize_opcode = 0x38, // XXX Length of executing contract's code in bytes
+  codecopy_opcode = 0x39, // XXX Copy executing contract's bytecode to memory
+  gasprice_opcode = 0x3A, // XXX Price of executing contract. Energyprice? 
+  extcodesize_opcode = 0x3B, // XXX Length of the contract bytecode at addr (top of stack) in bytes
+  extcodecopy_opcode = 0x3C, // XXX Copy contract's contract to memory
+  returndatasize_opcode = 0x3D, // XXX Size of returned data from last external call in bytes
+  returndatacopy_opcode = 0x3E, // XXX Copy returned data to memory
+  extcodehash_opcode = 0x3F, // XXX Hash of contract bytecode at addr (top of stack)
+  blockhash_opcode = 0x40, // XXX Hash of specific block (blocknumber is top of stack)
+  coinbase_opcode = 0x41, // XXX Address of current block's miner
+  timestamp_opcode = 0x42,
+  number_opcode = 0x43,
+  difficulty_opcode = 0x44, // XXX Current block's difficulty
+  gaslimit_opcode = 0x45, // XXX Current block's energylimit?
+  pop_opcode = 0x50,
   mload_opcode = 0x51, // TODO
   mstore_opcode = 0x52, // TODO
   mstore8_opcode = 0x53, // TODO
@@ -187,6 +191,10 @@ struct context
 {
   bool is_debug;
   uint64_t block_timestamp;
+  uint64_t block_number;
+  uint64_t block_difficulty;
+  uint64_t block_gaslimit;
+  std::string block_coinbase;
 };
 
 class machine

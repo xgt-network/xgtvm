@@ -281,8 +281,8 @@ void machine::step()
     case exp_opcode:
       // TODO Implement using boost::multiprecision::pow
       logger << "op exp" << std::endl;
-      va = pop_word(); // Base
-      vb = pop_word(); // Exponent
+      va = pop_word(); // base
+      vb = pop_word(); // exponent
       vc = 1;
       for (int i = 0; i < vb; i++) {
         vc *= va;
@@ -290,8 +290,16 @@ void machine::step()
       push_word(vc);
       break;
     case signextend_opcode:
-      // TODO
+      // TODO http://graphics.stanford.edu/~seander/bithacks.html#FixedSignExtend
       logger << "op signextend" << std::endl;
+      va = pop_word(); // b
+      vb = pop_word(); // x
+      /*
+         int const m = 1U << (va - 1)
+         vb = vb & ((1U << va) - 1);
+         vc = (vb ^ m) - m;
+         push_word(vc);
+      */
       break;
     case lt_opcode:
       logger << "op lt" << std::endl;
@@ -374,8 +382,8 @@ void machine::step()
     case shl_opcode:
       logger << "op shl" << std::endl;
 
-      va = pop_word(); // SHIFT
-      vb = pop_word(); // VALUE
+      va = pop_word(); // shift
+      vb = pop_word(); // value
 
       vc = vb << va.convert_to<size_t>();
 
@@ -383,8 +391,8 @@ void machine::step()
       break;
     case shr_opcode:
       logger << "op shr" << std::endl;
-      va = pop_word(); // SHIFT
-      vb = pop_word(); // VALUE
+      va = pop_word(); // shift
+      vb = pop_word(); // value
 
       vc = vb >> va.convert_to<size_t>();
       push_word(vc);
@@ -392,36 +400,110 @@ void machine::step()
       break;
     case sar_opcode:
       logger << "op sar" << std::endl;
-      sa = alias_to_int256_t( pop_word() ); // SHIFT
-      sb = pop_word(); // VALUE
+      sa = alias_to_int256_t( pop_word() ); // shift
+      sb = pop_word(); // value
 
       sc = sb >> sa.convert_to<size_t>();
       push_word( alias_to_uint256_t(sc) );
 
       break;
+    case sha3_opcode:
+      logger << "op sha3" << std::endl;
+      va = pop_word(); // offset
+      vb = pop_word(); // length
+      break;
+    case address_opcode:
+      logger << "op address" << std::endl;
+      // TODO
+      break;
+    case balance_opcode:
+      logger << "op balance" << std::endl;
+      // TODO
+      break;
+    case origin_opcode:
+      logger << "op origin" << std::endl;
+      // TODO
+      break;
+    case caller_opcode:
+      logger << "op caller" << std::endl;
+      // TODO
+      break;
+    case callvalue_opcode:
+      logger << "op callvalue" << std::endl;
+      // TODO
+      break;
+    case calldataload_opcode:
+      logger << "op calldataload" << std::endl;
+      // TODO
+      break;
+    case calldatasize_opcode:
+      logger << "op calldatasize" << std::endl;
+      // TODO
+      break;
+    case calldatacopy_opcode:
+      logger << "op calldatacopy" << std::endl;
+      // TODO
+      break;
+    case codesize_opcode:
+      logger << "op codesize" << std::endl;
+      // TODO
+      break;
+    case codecopy_opcode:
+      logger << "op codecopy" << std::endl;
+      // TODO
+      break;
+    case gasprice_opcode:
+      logger << "op gasprice" << std::endl;
+      // TODO
+      break;
+    case extcodesize_opcode:
+      logger << "op extcodesize" << std::endl;
+      // TODO
+      break;
+    case extcodecopy_opcode:
+      logger << "op extcodecopy" << std::endl;
+      // TODO
+      break;
+    case returndatasize_opcode:
+      logger << "op returndatasize" << std::endl;
+      // TODO
+      break;
+    case returndatacopy_opcode:
+      logger << "op returndatacopy" << std::endl;
+      // TODO
+      break;
+    case extcodehash_opcode:
+      logger << "op extcodehash" << std::endl;
+      // TODO
+      break;
+    case blockhash_opcode:
+      logger << "op blockhash" << std::endl;
+      // TODO
+      break;
+    case coinbase_opcode:
+      logger << "op coinbase" << std::endl;
+      // XXX Push string instead of big_word?
+      // push_string(ctx.block_coinbase); ?
+      break;
     case timestamp_opcode:
       logger << "op timestamp" << std::endl;
       push_word(ctx.block_timestamp);
       break;
-    case jump_opcode:
-      logger << "op jump" << std::endl;
-      va = pop_word(); // DESTINATION
-      if (code[get_byte(va, 0)] == jumpdest_opcode)
-        pc = get_byte(va, 0);
+    case number_opcode:
+      logger << "op number" << std::endl;
+      push_word(ctx.block_number);
       break;
-    case jumpi_opcode:
-      logger << "op jumpi" << std::endl;
-      print_stack();
-      va = pop_word();
-      vb = pop_word();
-      if (vb != 0)
-        if (code[get_byte(va, 0)] == jumpdest_opcode)
-          pc = get_byte(va, 0);
+    case difficulty_opcode:
+      logger << "op difficulty" << std::endl;
+      push_word(ctx.block_difficulty);
       break;
-    case pc_opcode:
-      logger << "op pc" << std::endl;
-      va = pc;
-      push_word(va);
+    case gaslimit_opcode:
+      logger << "op gaslimit" << std::endl;
+      push_word(ctx.block_gaslimit);
+      break;
+    case pop_opcode:
+      logger << "op pop" << std::endl;
+      pop_word();
       break;
     case mload_opcode:
       logger << "op mload" << std::endl;
@@ -461,6 +543,46 @@ void machine::step()
       // memory[va + 6] = get_byte(vb, 1);
       // memory[va + 7] = get_byte(vb, 0);
       // logger << "memory after: " << inspect(memory) << std::endl;
+      break;
+    case mstore8_opcode:
+      logger << "op mstore8" << std::endl;
+      // TODO
+      break;
+    case sload_opcode:
+      logger << "op sload" << std::endl;
+      // TODO
+      break;
+    case sstore_opcode:
+      logger << "op sstore" << std::endl;
+      // TODO
+      break;
+    case jump_opcode:
+      logger << "op jump" << std::endl;
+      va = pop_word(); // DESTINATION
+      if (code[get_byte(va, 0)] == jumpdest_opcode)
+        pc = get_byte(va, 0);
+      break;
+    case jumpi_opcode:
+      logger << "op jumpi" << std::endl;
+      print_stack();
+      va = pop_word();
+      vb = pop_word();
+      if (vb != 0)
+        if (code[get_byte(va, 0)] == jumpdest_opcode)
+          pc = get_byte(va, 0);
+      break;
+    case pc_opcode:
+      logger << "op pc" << std::endl;
+      va = pc;
+      push_word(va);
+      break;
+    case msize_opcode:
+      logger << "op msize" << std::endl;
+      // TODO
+      break;
+    case gas_opcode:
+      logger << "op gas" << std::endl;
+      // TODO
       break;
     case jumpdest_opcode:
       logger << "op jumpdest" << std::endl;
@@ -2128,13 +2250,47 @@ void machine::step()
       push_word(vb);
       push_word(vq);
       break;
+    case log0_opcode:
+      logger << "op log0" << std::endl;
+      va = pop_word(); // offset
+      vb = pop_word(); // length
+      break;
+    case log1_opcode:
+      logger << "op log1" << std::endl;
+      va = pop_word(); // offset
+      vb = pop_word(); // length
+      vc = pop_word(); // topic0
+      break;
+    case log2_opcode:
+      va = pop_word(); // offset
+      vb = pop_word(); // length
+      vc = pop_word(); // topic0
+      vd = pop_word(); // topic1
+      logger << "op log2" << std::endl;
+      break;
+    case log3_opcode:
+      logger << "op log3" << std::endl;
+      va = pop_word(); // offset
+      vb = pop_word(); // length
+      vc = pop_word(); // topic0
+      vd = pop_word(); // topic1
+      ve = pop_word(); // topic2
+      break;
+    case log4_opcode:
+      logger << "op log4" << std::endl;
+      va = pop_word(); // offset
+      vb = pop_word(); // length
+      vc = pop_word(); // topic0
+      vd = pop_word(); // topic1
+      ve = pop_word(); // topic2
+      vf = pop_word(); // topic3
+      break;
     case return_opcode:
       logger << "op return" << std::endl;
       // a = pop_word(); // offset
       // b = pop_word(); // length
       // logger << std::to_string(a) << std::endl;
-      // logger << std::to_string(b) << std::endl;
-      // return_value.resize(b);
+      // logger << std::to_string(b) << std::endl; // return_value.resize(b);
       // // TODO: Bounds checking
       // // TODO: Check if size needs to be capped
       // // TODO: Optimize
