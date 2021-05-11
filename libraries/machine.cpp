@@ -290,16 +290,22 @@ void machine::step()
       push_word(vc);
       break;
     case signextend_opcode:
-      // TODO http://graphics.stanford.edu/~seander/bithacks.html#FixedSignExtend
       logger << "op signextend" << std::endl;
-      va = pop_word(); // b
-      vb = pop_word(); // x
-      /*
-         int const m = 1U << (va - 1)
-         vb = vb & ((1U << va) - 1);
-         vc = (vb ^ m) - m;
-         push_word(vc);
-      */
+      sa = alias_to_int256_t( pop_word() ); // b
+      sb = alias_to_int256_t( pop_word() ); // x
+
+      if (sa < 31)
+      {
+          unsigned testBit = static_cast<unsigned>(sa) * 8 + 7;
+          big_word one = 1;
+          big_word mask = ((one << testBit) - 1);
+          if (sb & (one << testBit))
+              sc = sb | ~mask;
+          else
+              sc = sb & mask;
+      }
+
+      push_word( alias_to_uint256_t(sc) );
       break;
     case lt_opcode:
       logger << "op lt" << std::endl;
@@ -370,14 +376,14 @@ void machine::step()
       push_word(vb);
       break;
     case byte_opcode:
-      // TODO
       logger << "op byte" << std::endl;
 
-      va = pop_word(); // index
-      vb = pop_word(); // num
+      sa = pop_word(); // index
+      sb = pop_word(); // num
 
-      vc = (vb >> (248 - va * 8).convert_to<size_t>()) & 0xFF;
-      push_word(vc);
+      sc = sa < 32 ? (sb >> (unsigned)(8 * (31 - sa))) & 0xff : 0;
+
+      push_word( alias_to_uint256_t(sc) );
       break;
     case shl_opcode:
       logger << "op shl" << std::endl;
