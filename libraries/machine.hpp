@@ -31,7 +31,7 @@ enum opcode
   mulmod_opcode = 0x09,
   exp_opcode = 0x0a,
 
-  signextend_opcode = 0x0b, // XXX
+  signextend_opcode = 0x0b,
 
   // COMPARISON
   lt_opcode = 0x10,
@@ -46,34 +46,34 @@ enum opcode
   or_opcode = 0x17,
   xor_opcode = 0x18,
   not_opcode = 0x19,
-  byte_opcode = 0x1A, // XXX
+  byte_opcode = 0x1A,
   shl_opcode = 0x1B,
   shr_opcode = 0x1C,
   sar_opcode = 0x1D,
 
   sha3_opcode = 0x20, // XXX depends on crypto++ -- needs cmake integration
-  address_opcode = 0x30, // XXX Address of the executing contract -- where is contract information stored?
+  address_opcode = 0x30,
   balance_opcode = 0x31, // XXX Look up balance for address on top of stack. Is this an rpc call to the chain?
   origin_opcode = 0x32, // XXX Transaction origin address
-  caller_opcode = 0x33, // XXX Message caller address
-  callvalue_opcode = 0x34, // XXX Message value/funds
+  caller_opcode = 0x33,
+  callvalue_opcode = 0x34,
   calldataload_opcode = 0x35, // XXX Reads a uint256 from message data
-  calldatasize_opcode = 0x36, // XXX Message data lenght in bytes
+  calldatasize_opcode = 0x36, // XXX Message data length in bytes
   calldatacopy_opcode = 0x37, // XXX Copy message data to memory
-  codesize_opcode = 0x38, // XXX Length of executing contract's code in bytes
+  codesize_opcode = 0x38,
   codecopy_opcode = 0x39, // XXX Copy executing contract's bytecode to memory
   gasprice_opcode = 0x3A, // XXX Price of executing contract. Energyprice? 
   extcodesize_opcode = 0x3B, // XXX Length of the contract bytecode at addr (top of stack) in bytes
-  extcodecopy_opcode = 0x3C, // XXX Copy contract's contract to memory
+  extcodecopy_opcode = 0x3C, // XXX Copy contract's code to memory
   returndatasize_opcode = 0x3D, // XXX Size of returned data from last external call in bytes
   returndatacopy_opcode = 0x3E, // XXX Copy returned data to memory
   extcodehash_opcode = 0x3F, // XXX Hash of contract bytecode at addr (top of stack)
   blockhash_opcode = 0x40, // XXX Hash of specific block (blocknumber is top of stack)
-  coinbase_opcode = 0x41, // XXX Address of current block's miner
+  coinbase_opcode = 0x41, // TODO REVIEW
   timestamp_opcode = 0x42,
   number_opcode = 0x43,
-  difficulty_opcode = 0x44, // XXX Current block's difficulty
-  gaslimit_opcode = 0x45, // XXX Current block's energylimit?
+  difficulty_opcode = 0x44,
+  gaslimit_opcode = 0x45,
   pop_opcode = 0x50,
   mload_opcode = 0x51, // TODO
   mstore_opcode = 0x52, // TODO
@@ -85,7 +85,7 @@ enum opcode
   pc_opcode = 0x58,
   msize_opcode = 0x59, // TODO
   gas_opcode = 0x5A, // TODO energy?
-  jumpdest_opcode = 0x5B, // TODO
+  jumpdest_opcode = 0x5B,
 
   // PUSH
   push1_opcode = 0x60,
@@ -187,6 +187,24 @@ enum class machine_state
   error
 };
 
+struct message
+{
+  uint32_t flags;
+  int32_t depth;
+  int64_t gas;
+
+  // TODO Need address datatype
+  // address sender;
+  big_word sender;
+  // address destination;
+  big_word destination;
+
+  big_word value;
+  size_t input_size;
+  const uint8_t* input_data;
+  size_t code_size;
+};
+
 struct context
 {
   bool is_debug;
@@ -194,7 +212,9 @@ struct context
   uint64_t block_number;
   uint64_t block_difficulty;
   uint64_t block_gaslimit;
-  std::string block_coinbase;
+  uint64_t tx_gasprice;
+  // Should be address datatype
+  uint64_t block_coinbase;
 };
 
 class machine
@@ -206,6 +226,7 @@ class machine
   std::vector<word> memory;
   std::vector<word> return_value;
   context ctx;
+  message msg;
   boost::optional<std::string> error_message;
   std::stringstream logger;
 
@@ -214,8 +235,8 @@ class machine
   void log(std::string output);
 
   public:
-  machine(context ctx, std::vector<word> v)
-    : ctx(ctx), pc(0), code(v), state(machine_state::running)
+  machine(context ctx, std::vector<word> v, message msg)
+    : ctx(ctx), pc(0), code(v), msg(msg), state(machine_state::running)
   {
   }
 

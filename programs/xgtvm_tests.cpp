@@ -15,7 +15,8 @@ int main(int argc, char** argv)
   {
     std::vector<machine::word> input = {0x00};
     machine::context ctx = {true, 0x00};
-    machine::machine m(ctx, input);
+    machine::message msg = {};
+    machine::machine m(ctx, input, msg);
     assert_message( "machine should start running", m.get_state() == machine::machine_state::running );
     while (m.is_running())
       m.step();
@@ -27,7 +28,8 @@ int main(int argc, char** argv)
   {
     std::vector<machine::word> input = {};
     machine::context ctx = {true, 0x00};
-    machine::machine m(ctx, input);
+    machine::message msg = {};
+    machine::machine m(ctx, input, msg);
     while (m.is_running())
       m.step();
     assert_message( "machine should stop when done executing", m.get_state() == machine::machine_state::stopped );
@@ -38,7 +40,8 @@ int main(int argc, char** argv)
   {
     std::vector<machine::word> input = {0x42, 0x00};
     machine::context ctx = {true, 0x5c477758};
-    machine::machine m(ctx, input);
+    machine::message msg = {};
+    machine::machine m(ctx, input, msg);
     while (m.is_running())
       m.step();
     assert_message( "machine should stop when done executing", m.get_state() == machine::machine_state::stopped );
@@ -50,7 +53,8 @@ int main(int argc, char** argv)
   {
     std::vector<machine::word> input = {0x60, 0x02, 0x60, 0x03, 0x01, 0x00};
     machine::context ctx = {true, 0x00};
-    machine::machine m(ctx, input);
+    machine::message msg = {};
+    machine::machine m(ctx, input, msg);
     while (m.is_running())
       m.step();
     assert_message( "machine should stop when done executing", m.get_state() == machine::machine_state::stopped );

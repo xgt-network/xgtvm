@@ -420,7 +420,7 @@ void machine::step()
       break;
     case address_opcode:
       logger << "op address" << std::endl;
-      // TODO
+      push_word( msg.destination );
       break;
     case balance_opcode:
       logger << "op balance" << std::endl;
@@ -432,11 +432,11 @@ void machine::step()
       break;
     case caller_opcode:
       logger << "op caller" << std::endl;
-      // TODO
+      push_word( msg.sender );
       break;
     case callvalue_opcode:
       logger << "op callvalue" << std::endl;
-      // TODO
+      push_word( msg.value );
       break;
     case calldataload_opcode:
       logger << "op calldataload" << std::endl;
@@ -444,7 +444,7 @@ void machine::step()
       break;
     case calldatasize_opcode:
       logger << "op calldatasize" << std::endl;
-      // TODO
+      push_word( msg.input_size );
       break;
     case calldatacopy_opcode:
       logger << "op calldatacopy" << std::endl;
@@ -452,7 +452,7 @@ void machine::step()
       break;
     case codesize_opcode:
       logger << "op codesize" << std::endl;
-      // TODO
+      push_word( msg.code_size );
       break;
     case codecopy_opcode:
       logger << "op codecopy" << std::endl;
@@ -460,7 +460,7 @@ void machine::step()
       break;
     case gasprice_opcode:
       logger << "op gasprice" << std::endl;
-      // TODO
+      push_word( ctx.tx_gasprice );
       break;
     case extcodesize_opcode:
       logger << "op extcodesize" << std::endl;
@@ -488,8 +488,8 @@ void machine::step()
       break;
     case coinbase_opcode:
       logger << "op coinbase" << std::endl;
-      // XXX Push string instead of big_word?
-      // push_string(ctx.block_coinbase); ?
+      // TODO convert address datatype to big_word
+      push_word(ctx.block_coinbase);
       break;
     case timestamp_opcode:
       logger << "op timestamp" << std::endl;
@@ -564,7 +564,7 @@ void machine::step()
       break;
     case jump_opcode:
       logger << "op jump" << std::endl;
-      va = pop_word(); // DESTINATION
+      va = pop_word(); // destination
       if (code[get_byte(va, 0)] == jumpdest_opcode)
         pc = get_byte(va, 0);
       break;
