@@ -189,7 +189,7 @@ enum class machine_state
   error
 };
 
-struct log
+struct log_object
 {
   uint8_t data;
   std::vector<big_word> topics;

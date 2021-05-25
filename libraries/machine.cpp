@@ -6,6 +6,12 @@ namespace machine
 // void emit_log(const evmc::address& _addr, const uint8_t* _data, size_t _dataSize,
     // const evmc::bytes32 _topics[], size_t _numTopics);
 
+  // TODO Add parameters
+
+void emit_log(log_object o) {
+  return;
+};
+
 boost::multiprecision::uint256_t alias_to_uint256_t(boost::multiprecision::int256_t i)
 {
   return (boost::multiprecision::uint256_t)i;
@@ -164,11 +170,8 @@ big_word machine::pop_word()
    {
      stack.pop_front();
      return *it;
-    // Use `stack_object` as normal
    }
-   else {
-     // TODO Throw
-   }
+   throw;
 }
 
 big_word machine::peek_word()
@@ -2276,43 +2279,68 @@ void machine::step()
       push_word(vq);
       break;
     case log0_opcode:
-      logger << "op log0" << std::endl;
-      // Ex:
-      // log_object& o = { 0 /* data */, { 1, 2 } /* topics, 2 of them */ };
+      {
+        logger << "op log0" << std::endl;
+        va = pop_word(); // offset
+        vb = pop_word(); // length
 
-      va = pop_word(); // offset
-      vb = pop_word(); // length
-      break;
+        // Ex:
+        // log_object& o = { 0 /* data */, { 1, 2 } /* topics, 2 of them */ };
+        word data = memory[size_t(va)];
+        const log_object& o = { data, {} };
+        emit_log(o);
+        break;
+      }
     case log1_opcode:
-      logger << "op log1" << std::endl;
-      va = pop_word(); // offset
-      vb = pop_word(); // length
-      vc = pop_word(); // topic0
-      break;
+      {
+        logger << "op log1" << std::endl;
+        va = pop_word(); // offset
+        vb = pop_word(); // length
+        vc = pop_word(); // topic0
+        word data = memory[size_t(va)];
+        const log_object& o = { data, {vc} };
+        emit_log(o);
+        break;
+      }
     case log2_opcode:
-      va = pop_word(); // offset
-      vb = pop_word(); // length
-      vc = pop_word(); // topic0
-      vd = pop_word(); // topic1
-      logger << "op log2" << std::endl;
-      break;
+      {
+        logger << "op log2" << std::endl;
+        va = pop_word(); // offset
+        vb = pop_word(); // length
+        vc = pop_word(); // topic0
+        vd = pop_word(); // topic1
+        word data = memory[size_t(va)];
+        const log_object& o = { data, {vc, vd} };
+        emit_log(o);
+        break;
+      }
     case log3_opcode:
-      logger << "op log3" << std::endl;
-      va = pop_word(); // offset
-      vb = pop_word(); // length
-      vc = pop_word(); // topic0
-      vd = pop_word(); // topic1
-      ve = pop_word(); // topic2
-      break;
+      {
+        logger << "op log3" << std::endl;
+        va = pop_word(); // offset
+        vb = pop_word(); // length
+        vc = pop_word(); // topic0
+        vd = pop_word(); // topic1
+        ve = pop_word(); // topic2
+        word data = memory[size_t(va)];
+        const log_object& o = { data, {vc, vd, ve} };
+        emit_log(o);
+        break;
+      }
     case log4_opcode:
-      logger << "op log4" << std::endl;
-      va = pop_word(); // offset
-      vb = pop_word(); // length
-      vc = pop_word(); // topic0
-      vd = pop_word(); // topic1
-      ve = pop_word(); // topic2
-      vf = pop_word(); // topic3
-      break;
+      {
+        logger << "op log4" << std::endl;
+        va = pop_word(); // offset
+        vb = pop_word(); // length
+        vc = pop_word(); // topic0
+        vd = pop_word(); // topic1
+        ve = pop_word(); // topic2
+        vf = pop_word(); // topic3
+        word data = memory[size_t(va)];
+        const log_object& o = { data, {vc, vd, ve, vf} };
+        emit_log(o);
+        break;
+      }
     case return_opcode:
       logger << "op return" << std::endl;
       // a = pop_word(); // offset
