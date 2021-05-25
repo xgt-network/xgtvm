@@ -3,6 +3,9 @@
 namespace machine
 {
 
+// void emit_log(const evmc::address& _addr, const uint8_t* _data, size_t _dataSize,
+    // const evmc::bytes32 _topics[], size_t _numTopics);
+
 boost::multiprecision::uint256_t alias_to_uint256_t(boost::multiprecision::int256_t i)
 {
   return (boost::multiprecision::uint256_t)i;
@@ -149,21 +152,36 @@ std::string inspect(std::vector<word> words)
   return ss.str();
 }
 
-void machine::push_word(big_word v)
+void machine::push_word(stack_variant v)
 {
   stack.push_front(v);
 }
 
 big_word machine::pop_word()
 {
-  big_word v = stack.front();
-  stack.pop_front();
-  return v;
+  stack_variant& stack_object = stack.front();
+   if (big_word* it = boost::get<big_word>(&stack_object))
+   {
+     stack.pop_front();
+     return *it;
+    // Use `stack_object` as normal
+   }
+   else {
+     // TODO Throw
+   }
 }
 
 big_word machine::peek_word()
 {
-  return stack.front();
+  stack_variant& stack_object = stack.front();
+   if (big_word* it = boost::get<big_word>(&stack_object))
+   {
+     stack.pop_front();
+     return *it;
+   }
+   else {
+     throw;
+   }
 }
 
 // TODO: Make better
@@ -172,7 +190,7 @@ void machine::print_stack()
 {
   for (auto it = stack.cbegin(); it != stack.cend(); ++it)
   {
-    big_word w = *it;
+    stack_variant w = *it;
     logger << w;
     if (it + 1 != stack.cend())
       logger << " ";
@@ -204,6 +222,7 @@ void machine::step()
   word a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x,
        y, z, aa, ab, ac, ad, ae, af;
   big_word va, vb, vc, vd, ve, vf, vg, vh, vi, vj, vk, vl, vm, vn, vo, vp, vq;
+  stack_variant sv;
   signed_big_word sa, sb, sc;
   switch (op)
   {
@@ -1826,83 +1845,83 @@ void machine::step()
       break;
     case dup1_opcode:
       logger << "op dup1" << std::endl;
-      va = stack.front();
-      push_word(va);
+      sv = stack.front();
+      push_word(sv);
       break;
     case dup2_opcode:
       logger << "op dup2" << std::endl;
-      va = stack.at(1);
+      sv  = stack.at(1);
       push_word(va);
       break;
     case dup3_opcode:
       logger << "op dup3" << std::endl;
-      va = stack.at(2);
-      push_word(va);
+      sv = stack.at(2);
+      push_word(sv);
       break;
     case dup4_opcode:
       logger << "op dup4" << std::endl;
-      va = stack.at(3);
-      push_word(va);
+      sv = stack.at(3);
+      push_word(sv);
       break;
     case dup5_opcode:
       logger << "op dup5" << std::endl;
-      va = stack.at(4);
-      push_word(va);
+      sv = stack.at(4);
+      push_word(sv);
       break;
     case dup6_opcode:
       logger << "op dup6" << std::endl;
-      va = stack.at(5);
-      push_word(va);
+      sv = stack.at(5);
+      push_word(sv);
       break;
     case dup7_opcode:
       logger << "op dup7" << std::endl;
-      va = stack.at(6);
-      push_word(va);
+      sv = stack.at(6);
+      push_word(sv);
       break;
     case dup8_opcode:
       logger << "op dup8" << std::endl;
-      va = stack.at(7);
-      push_word(va);
+      sv = stack.at(7);
+      push_word(sv);
       break;
     case dup9_opcode:
       logger << "op dup9" << std::endl;
-      va = stack.at(8);
-      push_word(va);
+      sv = stack.at(8);
+      push_word(sv);
       break;
     case dup10_opcode:
       logger << "op dup10" << std::endl;
-      va = stack.at(9);
-      push_word(va);
+      sv = stack.at(9);
+      push_word(sv);
       break;
     case dup11_opcode:
       logger << "op dup11" << std::endl;
-      va = stack.at(10);
-      push_word(va);
+      sv = stack.at(10);
+      push_word(sv);
       break;
     case dup12_opcode:
       logger << "op dup12" << std::endl;
-      va = stack.at(11);
-      push_word(va);
+      sv = stack.at(11);
+      push_word(sv);
       break;
     case dup13_opcode:
       logger << "op dup13" << std::endl;
-      va = stack.at(12);
-      push_word(va);
+      sv = stack.at(12);
+      push_word(sv);
       break;
     case dup14_opcode:
       logger << "op dup14" << std::endl;
-      va = stack.at(13);
-      push_word(va);
+      sv = stack.at(13);
+      push_word(sv);
       break;
     case dup15_opcode:
       logger << "op dup15" << std::endl;
-      va = stack.at(14);
-      push_word(va);
+      sv = stack.at(14);
+      push_word(sv);
       break;
     case dup16_opcode:
       logger << "op dup16" << std::endl;
-      va = stack.at(15);
-      push_word(va);
+      sv = stack.at(15);
+      push_word(sv);
       break;
     case swap1_opcode:
       logger << "op swap1" << std::endl;
@@ -2258,6 +2277,9 @@ void machine::step()
       break;
     case log0_opcode:
       logger << "op log0" << std::endl;
+      // Ex:
+      // log_object& o = { 0 /* data */, { 1, 2 } /* topics, 2 of them */ };
+
       va = pop_word(); // offset
       vb = pop_word(); // length
       break;
@@ -2333,8 +2355,8 @@ std::string machine::to_json()
       s << "\"stack\":" << "[";
       for (auto it = stack.cbegin(); it != stack.cend(); ++it)
       {
-        big_word w = *it;
-        s << w;
+        stack_variant sv = *it;
+        s << sv;
         if (it + 1 != stack.cend())
           s << ",";
       }

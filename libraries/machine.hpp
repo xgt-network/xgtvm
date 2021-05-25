@@ -6,6 +6,7 @@
 #include <sstream>
 #include <boost/optional.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <boost/variant.hpp>
 #include <typeinfo>
 #include <bitset>
 
@@ -15,6 +16,7 @@ namespace machine
 typedef uint8_t word;
 typedef boost::multiprecision::uint256_t big_word;
 typedef boost::multiprecision::int256_t signed_big_word;
+typedef boost::variant<big_word> stack_variant;
 
 enum opcode
 {
@@ -187,6 +189,13 @@ enum class machine_state
   error
 };
 
+struct log
+{
+  uint8_t data;
+  std::vector<big_word> topics;
+};
+
+
 struct message
 {
   uint32_t flags;
@@ -217,10 +226,19 @@ struct context
   uint64_t block_coinbase;
 };
 
+/* TODO switch stack to variant implementing this pattern
+
+   if (stack_variant* it = std::get_if<stack_variant>(from))
+   {
+     stack_variant& stack_object = std::get<stack_variant>(from);
+    // Use `stack_object` as normal
+   }
+ */
+
 class machine
 {
   size_t pc;
-  std::deque<big_word> stack;
+  std::deque<stack_variant> stack;
   machine_state state;
   std::vector<word> code;
   std::vector<word> memory;
@@ -230,7 +248,7 @@ class machine
   boost::optional<std::string> error_message;
   std::stringstream logger;
 
-  void push_word(big_word v);
+  void push_word(stack_variant v);
   big_word pop_word();
   void log(std::string output);
 
