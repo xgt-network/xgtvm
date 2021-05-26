@@ -192,6 +192,7 @@ enum class machine_state
 struct log_object
 {
   uint8_t data;
+  uint8_t data_size;
   std::vector<big_word> topics;
 };
 
@@ -266,6 +267,8 @@ class machine
   machine_state get_state();
   std::stringstream& get_logger();
   std::string to_json();
+
+  void emit_log(log_object o);
 };
 
 }
