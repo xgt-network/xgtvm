@@ -2504,4 +2504,7 @@ namespace machine
     return s.str();
   }
 
+  void machine::emit_log(log_object o)
+  {
+  }
 }
