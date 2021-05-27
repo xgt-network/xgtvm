@@ -2279,6 +2279,7 @@ namespace machine
           vb = pop_word(); // length
           word data = memory[size_t(va)];
           const log_object o = { data, uint8_t(vb), {} };
+          this->emit_log(o);
 
           // Ex:
           // log_object& o = { 0 /* data */, { 1, 2 } /* topics, 2 of them */ };
