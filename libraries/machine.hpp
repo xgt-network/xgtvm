@@ -268,7 +268,7 @@ class machine
   std::stringstream& get_logger();
   std::string to_json();
 
-  void emit_log(log_object o);
+  void emit_log(const log_object& o);
 };
 
 }

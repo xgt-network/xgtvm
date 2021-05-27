@@ -2278,7 +2278,8 @@ namespace machine
           va = pop_word(); // offset
           vb = pop_word(); // length
           word data = memory[size_t(va)];
-          log_object o = { data, uint8_t(vb), {} };
+          const log_object o = { data, uint8_t(vb), {} };
+          this->emit_log(o);
 
           // Ex:
           // log_object& o = { 0 /* data */, { 1, 2 } /* topics, 2 of them */ };
@@ -2303,7 +2304,7 @@ namespace machine
           }
 
           word data = memory[size_t(va)];
-          log_object o = { data, uint8_t(vb), topics };
+          const log_object o = { data, uint8_t(vb), topics };
           this->emit_log(o);
           break;
         }
@@ -2336,7 +2337,7 @@ namespace machine
           }
 
           word data = memory[size_t(va)];
-          log_object o = { data, uint8_t(vb), topics };
+          const log_object o = { data, uint8_t(vb), topics };
           this->emit_log(o);
           break;
         }
@@ -2379,7 +2380,7 @@ namespace machine
           }
 
           word data = memory[size_t(va)];
-          log_object o = { data, uint8_t(vb), topics };
+          const log_object o = { data, uint8_t(vb), topics };
           this->emit_log(o);
           break;
         }
@@ -2432,7 +2433,7 @@ namespace machine
           }
 
           word data = memory[size_t(va)];
-          log_object o = { data, uint8_t(vb), topics };
+          const log_object o = { data, uint8_t(vb), topics };
           this->emit_log(o);
           break;
         }
@@ -2504,4 +2505,7 @@ namespace machine
     return s.str();
   }
 
+  void machine::emit_log(const log_object& o)
+  {
+  }
 }
