@@ -2504,7 +2504,7 @@ namespace machine
     return s.str();
   }
 
-  void machine::emit_log(const log_object o)
+  void machine::emit_log(const log_object& o)
   {
   }
 }
