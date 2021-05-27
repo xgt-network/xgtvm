@@ -1,0 +1,4 @@
+clean
+configure
+make
+test
