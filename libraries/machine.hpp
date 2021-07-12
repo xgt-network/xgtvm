@@ -167,19 +167,19 @@ enum opcode
   log4_opcode = 0xA4, // TODO
 
   // Generic push/dup/swap opcodes
-  push_opcode = 0xB0, // TODO
-  dup_opcode = 0xB1, // TODO
-  swap_opcode = 0xB2, // TODO
+  //push_opcode = 0xB0, // TODO
+  //dup_opcode = 0xB1, // TODO
+  //swap_opcode = 0xB2, // TODO
 
-  create_opcode = 0xF0, // TODO
-  call_opcode = 0xF1, // TODO
-  callcode_opcode = 0xF2, // TODO
+  //create_opcode = 0xF0, // TODO
+  //call_opcode = 0xF1, // TODO
+  //callcode_opcode = 0xF2, // TODO
   return_opcode = 0xF3,
-  delegatecall_opcode = 0xF4, // TODO
-  create2_opcode = 0xF5, // TODO
-  staticcall_opcode = 0xFA, // TODO
-  revert_opcode = 0xFD, // TODO
-  selfdestruct_opcode = 0xFF, // TODO
+  //delegatecall_opcode = 0xF4, // TODO
+  //create2_opcode = 0xF5, // TODO
+  //staticcall_opcode = 0xFA, // TODO
+  //revert_opcode = 0xFD, // TODO
+  //selfdestruct_opcode = 0xFF, // TODO
 };
 
 enum class machine_state
@@ -238,14 +238,14 @@ struct context
 
 class machine
 {
-  size_t pc;
+  size_t pc = 0;
   std::deque<stack_variant> stack;
-  machine_state state;
+  machine_state state = machine_state::running;
+  context ctx;
   std::vector<word> code;
+  message msg;
   std::vector<word> memory;
   std::vector<word> return_value;
-  context ctx;
-  message msg;
   boost::optional<std::string> error_message;
   std::stringstream logger;
 
@@ -254,8 +254,8 @@ class machine
   void log(std::string output);
 
   public:
-  machine(context ctx, std::vector<word> v, message msg)
-    : ctx(ctx), pc(0), code(v), msg(msg), state(machine_state::running)
+  machine(context ctx, std::vector<word> code, message msg)
+    : ctx(ctx), code(code), msg(msg)
   {
   }
 

@@ -6,8 +6,8 @@ def which?(cmd_name)
 end
 
 def xgtvm_eval(string)
-  # cmd = %(cd build && ./xgtvm -e'#{string}')
-  cmd = %(cd build && echo '#{string}' | ./xgtvm)
+  # cmd = %(cd build && ./xgtvmd -e'#{string}')
+  cmd = %(cd build && echo '#{string}' | ./xgtvmd)
   $stderr.puts(cmd)
   result = %x(#{cmd})
   JSON.load(result)
