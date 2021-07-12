@@ -141,7 +141,7 @@ namespace machine
   {
     std::stringstream ss;
     ss << "[";
-    for (int i = 0; i < words.size(); i++)
+    for (size_t i = 0; i < words.size(); i++)
     {
       // TODO: Print hex
       ss << std::to_string(words.at(i));
@@ -382,7 +382,7 @@ namespace machine
         logger << "op xor" << std::endl;
         va = pop_word();
         vb = pop_word();
-        vc = a ^ b;
+        vc = va ^ vb;
         push_word(vc);
         break;
       case not_opcode:
