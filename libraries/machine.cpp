@@ -36,6 +36,11 @@ namespace machine
     return x.convert_to<size_t>();
   }
 
+  big_word to_big_word(uint64_t a)
+  {
+    return a;
+  }
+
   big_word to_big_word(word a)
   {
     return a;
@@ -226,6 +231,7 @@ namespace machine
     big_word va, vb, vc, vd, ve, vf, vg, vh, vi, vj, vk, vl, vm, vn, vo, vp, vq;
     stack_variant sv;
     signed_big_word sa, sb, sc;
+    size_t offset, dest_offset, length, end;
     std::string* ss;
     switch (op)
     {
@@ -463,7 +469,7 @@ namespace machine
         break;
       case origin_opcode:
         logger << "op origin" << std::endl;
-        // TODO
+        push_word( ctx.tx_origin );
         break;
       case caller_opcode:
         logger << "op caller" << std::endl;
@@ -475,27 +481,92 @@ namespace machine
         break;
       case calldataload_opcode:
         logger << "op calldataload" << std::endl;
-        // TODO
+        offset = static_cast<size_t>( pop_word() );
+
+        if (offset > msg.input_size) {
+          logger << "calldataload start index is larger than message input_size";
+          break;
+        }
+
+        va = to_big_word(
+          msg.input_data[offset],
+          msg.input_data[offset + 1],
+          msg.input_data[offset + 2],
+          msg.input_data[offset + 3],
+          msg.input_data[offset + 4],
+          msg.input_data[offset + 5],
+          msg.input_data[offset + 6],
+          msg.input_data[offset + 7],
+          msg.input_data[offset + 8],
+          msg.input_data[offset + 9],
+          msg.input_data[offset + 10],
+          msg.input_data[offset + 11],
+          msg.input_data[offset + 12],
+          msg.input_data[offset + 13],
+          msg.input_data[offset + 14],
+          msg.input_data[offset + 15],
+          msg.input_data[offset + 16],
+          msg.input_data[offset + 17],
+          msg.input_data[offset + 18],
+          msg.input_data[offset + 19],
+          msg.input_data[offset + 20],
+          msg.input_data[offset + 21],
+          msg.input_data[offset + 22],
+          msg.input_data[offset + 23],
+          msg.input_data[offset + 24],
+          msg.input_data[offset + 25],
+          msg.input_data[offset + 26],
+          msg.input_data[offset + 27],
+          msg.input_data[offset + 28],
+          msg.input_data[offset + 29],
+          msg.input_data[offset + 30],
+          msg.input_data[offset + 31]
+        );
+        push_word(va);
         break;
       case calldatasize_opcode:
         logger << "op calldatasize" << std::endl;
-        push_word( msg.input_size );
+        push_word( to_big_word(msg.input_size) );
         break;
       case calldatacopy_opcode:
         logger << "op calldatacopy" << std::endl;
-        // TODO
+
+        dest_offset = static_cast<size_t>( pop_word() );
+        offset = static_cast<size_t>( pop_word() );
+        length = static_cast<size_t>( pop_word() );
+
+        if ((offset + length) > msg.input_size) {
+          logger << "calldatacopy end index is larger than message input_size";
+          break;
+        }
+
+        for (size_t i = 0; i < length; ++i)
+          memory[dest_offset + i] = msg.input_data[offset + i];
+
         break;
       case codesize_opcode:
         logger << "op codesize" << std::endl;
-        push_word( msg.code_size );
+        push_word( to_big_word( code.size() ) );
         break;
       case codecopy_opcode:
         logger << "op codecopy" << std::endl;
-        // TODO
+
+        dest_offset = static_cast<size_t>( pop_word() );
+        offset = static_cast<size_t>( pop_word() );
+        length = static_cast<size_t>( pop_word() );
+
+        if ((offset + length) > msg.input_size) {
+          logger << "codecopy end index is larger than message input_size";
+          break;
+        }
+
+        for (size_t i = 0; i < length; ++i)
+          memory[dest_offset + i] = code[offset + i];
+
         break;
       case gasprice_opcode:
         logger << "op gasprice" << std::endl;
-        push_word( ctx.tx_gasprice );
+        push_word( to_big_word(ctx.tx_gasprice) );
         break;
       case extcodesize_opcode:
         logger << "op extcodesize" << std::endl;
@@ -523,7 +594,6 @@ namespace machine
         break;
       case coinbase_opcode:
         logger << "op coinbase" << std::endl;
-        // TODO convert address datatype to big_word
         push_word(ctx.block_coinbase);
         break;
       case timestamp_opcode:

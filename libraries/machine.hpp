@@ -55,23 +55,23 @@ enum opcode
 
   sha3_opcode = 0x20, // XXX depends on crypto++ -- needs cmake integration
   address_opcode = 0x30,
-  balance_opcode = 0x31, // XXX Look up balance for address on top of stack. Is this an rpc call to the chain?
-  origin_opcode = 0x32, // XXX Transaction origin address
+  balance_opcode = 0x31,
+  origin_opcode = 0x32,
   caller_opcode = 0x33,
   callvalue_opcode = 0x34,
-  calldataload_opcode = 0x35, // XXX Reads a uint256 from message data
-  calldatasize_opcode = 0x36, // XXX Message data length in bytes
-  calldatacopy_opcode = 0x37, // XXX Copy message data to memory
+  calldataload_opcode = 0x35,
+  calldatasize_opcode = 0x36,
+  calldatacopy_opcode = 0x37,
   codesize_opcode = 0x38,
-  codecopy_opcode = 0x39, // XXX Copy executing contract's bytecode to memory
-  gasprice_opcode = 0x3A, // XXX Price of executing contract. Energyprice? 
+  codecopy_opcode = 0x39,
+  gasprice_opcode = 0x3A,
   extcodesize_opcode = 0x3B, // XXX Length of the contract bytecode at addr (top of stack) in bytes
   extcodecopy_opcode = 0x3C, // XXX Copy contract's code to memory
   returndatasize_opcode = 0x3D, // XXX Size of returned data from last external call in bytes
   returndatacopy_opcode = 0x3E, // XXX Copy returned data to memory
   extcodehash_opcode = 0x3F, // XXX Hash of contract bytecode at addr (top of stack)
   blockhash_opcode = 0x40, // XXX Hash of specific block (blocknumber is top of stack)
-  coinbase_opcode = 0x41, // TODO REVIEW
+  coinbase_opcode = 0x41,
   timestamp_opcode = 0x42,
   number_opcode = 0x43,
   difficulty_opcode = 0x44,
@@ -203,18 +203,17 @@ struct message
   int32_t depth;
   int64_t gas;
 
-  // TODO Need address datatype
-  // address sender;
-  big_word sender;
-  // address destination;
-  big_word destination;
+  std::string sender;
+  std::string destination;
 
   big_word value;
   size_t input_size;
-  const uint8_t* input_data;
+  // TODO input_data should be const uint8_t*[]
+  word input_data[256];
   size_t code_size;
 };
 
+// TODO replace with correct data types
 struct context
 {
   bool is_debug;
@@ -223,22 +222,15 @@ struct context
   uint64_t block_difficulty;
   uint64_t block_gaslimit;
   uint64_t tx_gasprice;
-  // Should be address datatype
-  uint64_t block_coinbase;
+  std::string tx_origin;
+  std::string block_coinbase;
 };
-
-/* TODO switch stack to variant implementing this pattern
-
-   if (stack_variant* it = std::get_if<stack_variant>(from))
-   {
-     stack_variant& stack_object = std::get<stack_variant>(from);
-    // Use `stack_object` as normal
-   }
- */
 
 struct chain_adapter
 {
   std::function< uint64_t(std::string) > get_balance;
+  std::function< uint64_t(std::string) > get_input_data; // TODO used to initialize message data
+  std::function< uint64_t(std::string) > get_code_at_addr; // TODO get contract bytecode at address
 };
 
 class machine

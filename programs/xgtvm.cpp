@@ -52,6 +52,7 @@ static struct option long_options[] = {
   {0, 0, 0, 0}
 };
 
+// chain_adapter is state.host equivalent in evmone
 machine::chain_adapter make_chain_adapter()
 {
   std::function< uint64_t(std::string) > get_balance = [](std::string wallet_name) -> uint64_t
