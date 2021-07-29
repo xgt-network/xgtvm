@@ -65,7 +65,7 @@ enum opcode
   codesize_opcode = 0x38,
   codecopy_opcode = 0x39,
   gasprice_opcode = 0x3A,
-  extcodesize_opcode = 0x3B, // XXX Length of the contract bytecode at addr (top of stack) in bytes
+  extcodesize_opcode = 0x3B,
   extcodecopy_opcode = 0x3C, // XXX Copy contract's code to memory
   returndatasize_opcode = 0x3D, // XXX Size of returned data from last external call in bytes
   returndatacopy_opcode = 0x3E, // XXX Copy returned data to memory
@@ -230,7 +230,7 @@ struct chain_adapter
 {
   std::function< uint64_t(std::string) > get_balance;
   std::function< uint64_t(std::string) > get_input_data; // TODO used to initialize message data
-  std::function< uint64_t(std::string) > get_code_at_addr; // TODO get contract bytecode at address
+  std::function< std::vector<word>(std::string) > get_code_at_addr; // TODO get contract bytecode at address
 };
 
 class machine
@@ -243,6 +243,7 @@ class machine
   message msg;
   std::vector<word> memory;
   std::vector<word> return_value;
+  std::vector<word> ext_return_data;
   boost::optional<std::string> error_message;
   std::stringstream logger;
   chain_adapter adapter;

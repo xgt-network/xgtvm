@@ -231,7 +231,8 @@ namespace machine
     big_word va, vb, vc, vd, ve, vf, vg, vh, vi, vj, vk, vl, vm, vn, vo, vp, vq;
     stack_variant sv;
     signed_big_word sa, sb, sc;
-    size_t offset, dest_offset, length, end;
+    size_t offset, dest_offset, length, end, code_size;
+    std::vector<word> ext_contract_code;
     std::string* ss;
     switch (op)
     {
@@ -556,7 +557,7 @@ namespace machine
         length = static_cast<size_t>( pop_word() );
 
         if ((offset + length) > msg.input_size) {
-          logger << "codecopy end index is larger than message input_size";
+          logger << "Codecopy end index is larger than message input_size";
           break;
         }
 
@@ -566,23 +567,69 @@ namespace machine
         break;
       case gasprice_opcode:
         logger << "op gasprice" << std::endl;
-        push_word( to_big_word(ctx.tx_gasprice) );
+        push_word( to_big_word( ctx.tx_gasprice ) );
         break;
       case extcodesize_opcode:
         logger << "op extcodesize" << std::endl;
-        // TODO
+        sv = stack.front(); // addr
+        stack.pop_front();
+        if (ss = boost::get<std::string>(&sv))
+        {
+          ext_contract_code = adapter.get_code_at_addr(*ss);
+          push_word( sizeof(ext_contract_code) / sizeof(ext_contract_code[0]) );
+        }
+        else
+        {
+          state = machine_state::error;
+          error_message.emplace("Extcodesize operation type error");
+        }
         break;
       case extcodecopy_opcode:
         logger << "op extcodecopy" << std::endl;
-        // TODO
+        sv = pop_word(); // addr
+        stack.pop_front();
+        if (ss = boost::get<std::string>(&sv))
+        {
+          ext_contract_code = adapter.get_code_at_addr(*ss);
+          code_size = sizeof(ext_contract_code) / sizeof(ext_contract_code[0]);
+        }
+        else
+        {
+          state = machine_state::error;
+          error_message.emplace("Extcodecopy operation type error");
+        }
+
+        dest_offset = static_cast<size_t>( pop_word() );
+        offset = static_cast<size_t>( pop_word() );
+        length = static_cast<size_t>( pop_word() );
+
+        if ((offset + length) > code_size) {
+          logger << "codecopy end index exceeds external contract code length";
+          break;
+        }
+
+        for (size_t i = 0; i < length; ++i)
+          memory[dest_offset + i] = ext_contract_code[offset + i];
+
         break;
       case returndatasize_opcode:
         logger << "op returndatasize" << std::endl;
-        // TODO
+        push_word( ext_return_data.size() );
         break;
       case returndatacopy_opcode:
         logger << "op returndatacopy" << std::endl;
-        // TODO
+        dest_offset = static_cast<size_t>( pop_word() );
+        offset = static_cast<size_t>( pop_word() );
+        length = static_cast<size_t>( pop_word() );
+
+        if ( (offset + length) > ext_return_data.size() ) {
+          logger << "returndatacopy end index exceeds return data size";
+          break;
+        }
+
+        for (size_t i = 0; i < length; ++i)
+          memory[dest_offset + i] = ext_return_data[offset + i];
+
         break;
       case extcodehash_opcode:
         logger << "op extcodehash" << std::endl;
@@ -594,23 +641,23 @@ namespace machine
         break;
       case coinbase_opcode:
         logger << "op coinbase" << std::endl;
-        push_word(ctx.block_coinbase);
+        push_word( ctx.block_coinbase );
         break;
       case timestamp_opcode:
         logger << "op timestamp" << std::endl;
-        push_word(ctx.block_timestamp);
+        push_word( ctx.block_timestamp );
         break;
       case number_opcode:
         logger << "op number" << std::endl;
-        push_word(ctx.block_number);
+        push_word( ctx.block_number );
         break;
       case difficulty_opcode:
         logger << "op difficulty" << std::endl;
-        push_word(ctx.block_difficulty);
+        push_word( ctx.block_difficulty );
         break;
       case gaslimit_opcode:
         logger << "op gaslimit" << std::endl;
-        push_word(ctx.block_gaslimit);
+        push_word( ctx.block_gaslimit );
         break;
       case pop_opcode:
         logger << "op pop" << std::endl;
