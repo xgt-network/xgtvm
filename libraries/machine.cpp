@@ -36,7 +36,7 @@ namespace machine
     return x.convert_to<size_t>();
   }
 
-  big_word to_big_word(uint64_t a)
+  big_word to_big_word(size_t a)
   {
     return a;
   }
@@ -490,38 +490,14 @@ namespace machine
         }
 
         va = to_big_word(
-          msg.input_data[offset],
-          msg.input_data[offset + 1],
-          msg.input_data[offset + 2],
-          msg.input_data[offset + 3],
-          msg.input_data[offset + 4],
-          msg.input_data[offset + 5],
-          msg.input_data[offset + 6],
           msg.input_data[offset + 7],
-          msg.input_data[offset + 8],
-          msg.input_data[offset + 9],
-          msg.input_data[offset + 10],
-          msg.input_data[offset + 11],
-          msg.input_data[offset + 12],
-          msg.input_data[offset + 13],
-          msg.input_data[offset + 14],
-          msg.input_data[offset + 15],
-          msg.input_data[offset + 16],
-          msg.input_data[offset + 17],
-          msg.input_data[offset + 18],
-          msg.input_data[offset + 19],
-          msg.input_data[offset + 20],
-          msg.input_data[offset + 21],
-          msg.input_data[offset + 22],
-          msg.input_data[offset + 23],
-          msg.input_data[offset + 24],
-          msg.input_data[offset + 25],
-          msg.input_data[offset + 26],
-          msg.input_data[offset + 27],
-          msg.input_data[offset + 28],
-          msg.input_data[offset + 29],
-          msg.input_data[offset + 30],
-          msg.input_data[offset + 31]
+          msg.input_data[offset + 6],
+          msg.input_data[offset + 5],
+          msg.input_data[offset + 4],
+          msg.input_data[offset + 3],
+          msg.input_data[offset + 2],
+          msg.input_data[offset + 1],
+          msg.input_data[offset + 0]
         );
         push_word(va);
         break;
@@ -565,16 +541,16 @@ namespace machine
           memory[dest_offset + i] = code[offset + i];
 
         break;
-      case gasprice_opcode:
-        logger << "op gasprice" << std::endl;
-        push_word( to_big_word( ctx.tx_gasprice ) );
+      case energyprice_opcode:
+        logger << "op energyprice" << std::endl;
+        push_word( to_big_word( ctx.tx_energyprice ) );
         break;
       case extcodesize_opcode:
         logger << "op extcodesize" << std::endl;
         sv = stack.front(); // addr
-        stack.pop_front();
         if (ss = boost::get<std::string>(&sv))
         {
+          stack.pop_front();
           ext_contract_code = adapter.get_code_at_addr(*ss);
           push_word( sizeof(ext_contract_code) / sizeof(ext_contract_code[0]) );
         }
@@ -586,10 +562,10 @@ namespace machine
         break;
       case extcodecopy_opcode:
         logger << "op extcodecopy" << std::endl;
-        sv = pop_word(); // addr
-        stack.pop_front();
+        sv = stack.front(); // addr
         if (ss = boost::get<std::string>(&sv))
         {
+          stack.pop_front();
           ext_contract_code = adapter.get_code_at_addr(*ss);
           code_size = sizeof(ext_contract_code) / sizeof(ext_contract_code[0]);
         }
@@ -633,11 +609,22 @@ namespace machine
         break;
       case extcodehash_opcode:
         logger << "op extcodehash" << std::endl;
-        // TODO
+        sv = stack.front(); // addr
+        if (ss = boost::get<std::string>(&sv))
+        {
+          stack.pop_front();
+          push_word( adapter.get_code_hash(*ss) );
+        }
+        else
+        {
+          state = machine_state::error;
+          error_message.emplace("Extcodehash operation type error");
+        }
         break;
       case blockhash_opcode:
         logger << "op blockhash" << std::endl;
-        // TODO
+        va = pop_word();
+        push_word( adapter.get_block_hash(va) );
         break;
       case coinbase_opcode:
         logger << "op coinbase" << std::endl;
@@ -655,9 +642,9 @@ namespace machine
         logger << "op difficulty" << std::endl;
         push_word( ctx.block_difficulty );
         break;
-      case gaslimit_opcode:
-        logger << "op gaslimit" << std::endl;
-        push_word( ctx.block_gaslimit );
+      case energylimit_opcode:
+        logger << "op energylimit" << std::endl;
+        push_word( ctx.block_energylimit );
         break;
       case pop_opcode:
         logger << "op pop" << std::endl;
@@ -665,46 +652,53 @@ namespace machine
         break;
       case mload_opcode:
         logger << "op mload" << std::endl;
-        // va = pop_word(); // offset
-        // if (va + 8 >= memory.size())
-        // {
-        //   state = machine_state::error;
-        //   error_message.emplace("Memory overflow");
-        // }
-        // // TODO: Verify order
-        // vb = to_big_word(
-        //   memory[va + 7],
-        //   memory[va + 6],
-        //   memory[va + 5],
-        //   memory[va + 4],
-        //   memory[va + 3],
-        //   memory[va + 2],
-        //   memory[va + 1],
-        //   memory[va + 0]
-        // );
-        // push_word(vb);
+        va = pop_word(); // offset
+        if (va + 8 >= memory.size())
+        {
+          state = machine_state::error;
+          error_message.emplace("Memory overflow");
+        }
+        // TODO: Verify order
+        vb = to_big_word(
+          memory[static_cast<size_t>(va) + 7],
+          memory[static_cast<size_t>(va) + 6],
+          memory[static_cast<size_t>(va) + 5],
+          memory[static_cast<size_t>(va) + 4],
+          memory[static_cast<size_t>(va) + 3],
+          memory[static_cast<size_t>(va) + 2],
+          memory[static_cast<size_t>(va) + 1],
+          memory[static_cast<size_t>(va) + 0]
+        );
+        push_word(vb);
         break;
       case mstore_opcode:
         logger << "op mstore" << std::endl;
-        // va = pop_word(); // offset
-        // vb = pop_word(); // value
-        // logger << "memory before: " << inspect(memory) << std::endl;
-        // if (va + 8 >= memory.size())
-        //   memory.resize(va + 8);
-        // // TODO: Verify order
-        // memory[va + 0] = get_byte(vb, 7);
-        // memory[va + 1] = get_byte(vb, 6);
-        // memory[va + 2] = get_byte(vb, 5);
-        // memory[va + 3] = get_byte(vb, 4);
-        // memory[va + 4] = get_byte(vb, 3);
-        // memory[va + 5] = get_byte(vb, 2);
-        // memory[va + 6] = get_byte(vb, 1);
-        // memory[va + 7] = get_byte(vb, 0);
-        // logger << "memory after: " << inspect(memory) << std::endl;
+        va = pop_word(); // offset
+        vb = pop_word(); // value
+        logger << "memory before: " << inspect(memory) << std::endl;
+        if (va + 8 >= memory.size())
+          memory.resize(static_cast<size_t>(va) + 8);
+        // TODO: Verify order
+        memory[static_cast<size_t>(va) + 0] = get_byte(vb, 7);
+        memory[static_cast<size_t>(va) + 1] = get_byte(vb, 6);
+        memory[static_cast<size_t>(va) + 2] = get_byte(vb, 5);
+        memory[static_cast<size_t>(va) + 3] = get_byte(vb, 4);
+        memory[static_cast<size_t>(va) + 4] = get_byte(vb, 3);
+        memory[static_cast<size_t>(va) + 5] = get_byte(vb, 2);
+        memory[static_cast<size_t>(va) + 6] = get_byte(vb, 1);
+        memory[static_cast<size_t>(va) + 7] = get_byte(vb, 0);
+        logger << "memory after: " << inspect(memory) << std::endl;
         break;
       case mstore8_opcode:
         logger << "op mstore8" << std::endl;
-        // TODO
+        va = pop_word(); // offset
+        vb = pop_word(); // value
+        logger << "memory before: " << inspect(memory) << std::endl;
+        if (va + 1 >= memory.size())
+          memory.resize(static_cast<size_t>(va) + 1);
+        // TODO: Verify order
+        memory[static_cast<size_t>(va)] = get_byte(vb, 0); // TODO verify byte of big_word vb
+        logger << "memory after: " << inspect(memory) << std::endl;
         break;
       case sload_opcode:
         logger << "op sload" << std::endl;
@@ -736,11 +730,11 @@ namespace machine
         break;
       case msize_opcode:
         logger << "op msize" << std::endl;
-        // TODO
+        push_word( to_big_word( memory.size() ) );
         break;
-      case gas_opcode:
-        logger << "op gas" << std::endl;
-        // TODO
+      case energy_opcode:
+        logger << "op energy" << std::endl;
+        push_word(energy_left);
         break;
       case jumpdest_opcode:
         logger << "op jumpdest" << std::endl;
@@ -2573,6 +2567,38 @@ namespace machine
           this->emit_log(o);
           break;
         }
+      case create_opcode:
+        logger << "op create" << std::endl;
+        va = pop_word(); // value
+        vb = pop_word(); // offset
+        vc = pop_word(); // length
+
+        // TODO
+        break;
+      case call_opcode:
+        logger << "op call" << std::endl;
+        va = pop_word(); // energy
+        vb = pop_word(); // addr
+        vc = pop_word(); // value
+        vd = pop_word(); // argsOffset
+        ve = pop_word(); // argsLength
+        vf = pop_word(); // retOffset
+        vg = pop_word(); // retLength
+
+        // TODO
+        break;
+      case callcode_opcode:
+        logger << "op callcode" << std::endl;
+        va = pop_word(); // energy
+        vb = pop_word(); // addr
+        vc = pop_word(); // value
+        vd = pop_word(); // argsOffset
+        ve = pop_word(); // argsLength
+        vf = pop_word(); // retOffset
+        vg = pop_word(); // retLength
+
+        // TODO
+        break;
       case return_opcode:
         logger << "op return" << std::endl;
         // a = pop_word(); // offset
@@ -2585,6 +2611,48 @@ namespace machine
         // for (int i = 0; i < return_value.size(); i++)
         //   return_value[i] = memory[a + i];
         // state = machine_state::stopped;
+        break;
+      case delegatecall_opcode:
+        logger << "op delegatecall" << std::endl;
+        va = pop_word(); // energy
+        vb = pop_word(); // addr
+        vc = pop_word(); // argsOffset
+        vd = pop_word(); // argsLength
+        ve = pop_word(); // retOffset
+        vf = pop_word(); // retLength
+
+        // TODO
+        break;
+      case create2_opcode:
+        logger << "op create2" << std::endl;
+        va = pop_word(); // value
+        vb = pop_word(); // offset
+        vc = pop_word(); //length
+        vd = pop_word(); // salt
+        // TODO
+        break;
+      case staticcall_opcode:
+        logger << "op staticcall" << std::endl;
+        va = pop_word(); // energy
+        vb = pop_word(); // addr
+        vc = pop_word(); // argsOffset
+        vd = pop_word(); // argsLength
+        ve = pop_word(); // retOffset
+        vf = pop_word(); // retLength
+
+        // TODO
+        break;
+      case revert_opcode:
+        logger << "op revert" << std::endl;
+        va = pop_word(); // offset
+        vb = pop_word(); // length
+
+        adapter.revert(va, vb);
+        // TODO REVIEW
+        break;
+      case selfdestruct_opcode:
+        logger << "op selfdestruct" << std::endl;
+        // TODO
         break;
     }
   }

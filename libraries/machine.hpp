@@ -64,18 +64,18 @@ enum opcode
   calldatacopy_opcode = 0x37,
   codesize_opcode = 0x38,
   codecopy_opcode = 0x39,
-  gasprice_opcode = 0x3A,
+  energyprice_opcode = 0x3A,
   extcodesize_opcode = 0x3B,
-  extcodecopy_opcode = 0x3C, // XXX Copy contract's code to memory
-  returndatasize_opcode = 0x3D, // XXX Size of returned data from last external call in bytes
-  returndatacopy_opcode = 0x3E, // XXX Copy returned data to memory
-  extcodehash_opcode = 0x3F, // XXX Hash of contract bytecode at addr (top of stack)
-  blockhash_opcode = 0x40, // XXX Hash of specific block (blocknumber is top of stack)
+  extcodecopy_opcode = 0x3C,
+  returndatasize_opcode = 0x3D,
+  returndatacopy_opcode = 0x3E,
+  extcodehash_opcode = 0x3F,
+  blockhash_opcode = 0x40,
   coinbase_opcode = 0x41,
   timestamp_opcode = 0x42,
   number_opcode = 0x43,
   difficulty_opcode = 0x44,
-  gaslimit_opcode = 0x45,
+  energylimit_opcode = 0x45,
   pop_opcode = 0x50,
   mload_opcode = 0x51, // TODO
   mstore_opcode = 0x52, // TODO
@@ -85,8 +85,8 @@ enum opcode
   jump_opcode = 0x56,
   jumpi_opcode = 0x57, 
   pc_opcode = 0x58,
-  msize_opcode = 0x59, // TODO
-  gas_opcode = 0x5A, // TODO energy?
+  msize_opcode = 0x59,
+  energy_opcode = 0x5A,
   jumpdest_opcode = 0x5B,
 
   // PUSH
@@ -160,26 +160,26 @@ enum opcode
   swap16_opcode = 0x9F,
 
   // LOG
-  log0_opcode = 0xA0, // TODO
-  log1_opcode = 0xA1, // TODO
-  log2_opcode = 0xA2, // TODO
-  log3_opcode = 0xA3, // TODO
-  log4_opcode = 0xA4, // TODO
+  log0_opcode = 0xA0,
+  log1_opcode = 0xA1,
+  log2_opcode = 0xA2,
+  log3_opcode = 0xA3,
+  log4_opcode = 0xA4,
 
   // Generic push/dup/swap opcodes
   //push_opcode = 0xB0, // TODO
   //dup_opcode = 0xB1, // TODO
   //swap_opcode = 0xB2, // TODO
 
-  //create_opcode = 0xF0, // TODO
-  //call_opcode = 0xF1, // TODO
-  //callcode_opcode = 0xF2, // TODO
-  return_opcode = 0xF3,
-  //delegatecall_opcode = 0xF4, // TODO
-  //create2_opcode = 0xF5, // TODO
-  //staticcall_opcode = 0xFA, // TODO
-  //revert_opcode = 0xFD, // TODO
-  //selfdestruct_opcode = 0xFF, // TODO
+  create_opcode = 0xF0, // TODO
+  call_opcode = 0xF1, // TODO
+  callcode_opcode = 0xF2, // TODO
+  return_opcode = 0xF3, // TODO
+  delegatecall_opcode = 0xF4, // TODO
+  create2_opcode = 0xF5, // TODO
+  staticcall_opcode = 0xFA, // TODO
+  revert_opcode = 0xFD, // TODO
+  selfdestruct_opcode = 0xFF, // TODO
 };
 
 enum class machine_state
@@ -201,7 +201,7 @@ struct message
 {
   uint32_t flags;
   int32_t depth;
-  int64_t gas;
+  int64_t energy;
 
   std::string sender;
   std::string destination;
@@ -220,8 +220,8 @@ struct context
   uint64_t block_timestamp;
   uint64_t block_number;
   uint64_t block_difficulty;
-  uint64_t block_gaslimit;
-  uint64_t tx_gasprice;
+  uint64_t block_energylimit;
+  uint64_t tx_energyprice;
   std::string tx_origin;
   std::string block_coinbase;
 };
@@ -230,7 +230,12 @@ struct chain_adapter
 {
   std::function< uint64_t(std::string) > get_balance;
   std::function< uint64_t(std::string) > get_input_data; // TODO used to initialize message data
+  std::function< std::string(std::string) > get_code_hash; // TODO for hashing address -- extcodehash opcode
+  std::function< std::string(big_word) > get_block_hash; // TODO for hashing block number -- blockhash opcode
   std::function< std::vector<word>(std::string) > get_code_at_addr; // TODO get contract bytecode at address
+  std::function< std::string(std::vector<word>, word, word) > create_child_contract; // TODO creates a child contract -- create opcode
+  std::function< std::string(std::vector<word>, word, word, std::string) > create_child_contract2; // TODO creates a child contract -- create2 opcode
+  std::function< bool(big_word, big_word) > revert; // TODO revert opcode
 };
 
 class machine
@@ -242,11 +247,13 @@ class machine
   std::vector<word> code;
   message msg;
   std::vector<word> memory;
+  std::vector<word> storage; // TODO verify data type
   std::vector<word> return_value;
   std::vector<word> ext_return_data;
   boost::optional<std::string> error_message;
   std::stringstream logger;
   chain_adapter adapter;
+  big_word energy_left;
 
   void push_word(stack_variant v);
   big_word pop_word();
