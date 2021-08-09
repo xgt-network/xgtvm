@@ -77,13 +77,13 @@ enum opcode
   difficulty_opcode = 0x44,
   energylimit_opcode = 0x45,
   pop_opcode = 0x50,
-  mload_opcode = 0x51, // TODO
-  mstore_opcode = 0x52, // TODO
-  mstore8_opcode = 0x53, // TODO
-  sload_opcode = 0x54, // TODO
-  sstore_opcode = 0x55, // TODO
+  mload_opcode = 0x51,
+  mstore_opcode = 0x52,
+  mstore8_opcode = 0x53,
+  sload_opcode = 0x54,
+  sstore_opcode = 0x55,
   jump_opcode = 0x56,
-  jumpi_opcode = 0x57, 
+  jumpi_opcode = 0x57,
   pc_opcode = 0x58,
   msize_opcode = 0x59,
   energy_opcode = 0x5A,
@@ -166,19 +166,14 @@ enum opcode
   log3_opcode = 0xA3,
   log4_opcode = 0xA4,
 
-  // Generic push/dup/swap opcodes
-  //push_opcode = 0xB0, // TODO
-  //dup_opcode = 0xB1, // TODO
-  //swap_opcode = 0xB2, // TODO
-
-  create_opcode = 0xF0, // TODO
+  create_opcode = 0xF0,
   call_opcode = 0xF1, // TODO
   callcode_opcode = 0xF2, // TODO
-  return_opcode = 0xF3, // TODO
+  return_opcode = 0xF3,
   delegatecall_opcode = 0xF4, // TODO
   create2_opcode = 0xF5, // TODO
   staticcall_opcode = 0xFA, // TODO
-  revert_opcode = 0xFD, // TODO
+  revert_opcode = 0xFD,
   selfdestruct_opcode = 0xFF, // TODO
 };
 
@@ -208,8 +203,7 @@ struct message
 
   big_word value;
   size_t input_size;
-  // TODO input_data should be const uint8_t*[]
-  word input_data[256];
+  std::vector<word> input_data = {};
   size_t code_size;
 };
 
@@ -229,13 +223,19 @@ struct context
 struct chain_adapter
 {
   std::function< uint64_t(std::string) > get_balance;
-  std::function< uint64_t(std::string) > get_input_data; // TODO used to initialize message data
+  std::function< std::vector<word>(std::string) > get_input_data; // TODO used to initialize message data
   std::function< std::string(std::string) > get_code_hash; // TODO for hashing address -- extcodehash opcode
   std::function< std::string(big_word) > get_block_hash; // TODO for hashing block number -- blockhash opcode
   std::function< std::vector<word>(std::string) > get_code_at_addr; // TODO get contract bytecode at address
-  std::function< std::string(std::vector<word>, word, word) > create_child_contract; // TODO creates a child contract -- create opcode
+  std::function< std::string(std::vector<word>, big_word) > contract_create; // TODO creates a child contract -- create opcode
+
+  // TODO call a method from another contract -- call opcode -- address, energy, value, args
+  std::function< std::string(std::string, int64_t, big_word, std::vector<word>) > contract_call;
   std::function< std::string(std::vector<word>, word, word, std::string) > create_child_contract2; // TODO creates a child contract -- create2 opcode
-  std::function< bool(big_word, big_word) > revert; // TODO revert opcode
+  std::function< bool(std::vector<word>) > revert; // TODO revert opcode
+  std::function< big_word(std::string) > access_storage; // TODO load opcode -- takes key as a parameter and returns value
+  std::function< bool(std::string, std::string, big_word) > set_storage; // TODO sstore opcode -- destination, key, value
+  std::function< bool(std::vector<word>) > contract_return; // TODO return opcode
 };
 
 class machine
@@ -247,7 +247,7 @@ class machine
   std::vector<word> code;
   message msg;
   std::vector<word> memory;
-  std::vector<word> storage; // TODO verify data type
+  std::vector< std::map<std::string, big_word> > storage;
   std::vector<word> return_value;
   std::vector<word> ext_return_data;
   boost::optional<std::string> error_message;

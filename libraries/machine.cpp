@@ -233,6 +233,7 @@ namespace machine
     signed_big_word sa, sb, sc;
     size_t offset, dest_offset, length, end, code_size;
     std::vector<word> ext_contract_code;
+    std::vector<word>::const_iterator first, last;
     std::string* ss;
     switch (op)
     {
@@ -702,12 +703,30 @@ namespace machine
         break;
       case sload_opcode:
         logger << "op sload" << std::endl;
-        // TODO
+        sv = stack.front();
+        if (std::string* it = boost::get<std::string>(&sv))
+        {
+          stack.pop_front();
+          va = adapter.access_storage(*it);
+          push_word(va);
+        }
+        else {
+          throw; // TODO
+        }
         break;
       case sstore_opcode:
         logger << "op sstore" << std::endl;
-        // TODO
-        break;
+        sv = stack.front();
+        if (std::string* it = boost::get<std::string>(&sv))
+        {
+          stack.pop_front();
+          va = pop_word();
+          adapter.set_storage(msg.destination, *it, va);
+        }
+        else {
+          throw; // TODO
+        }
+      break;
       case jump_opcode:
         logger << "op jump" << std::endl;
         va = pop_word(); // destination
@@ -2569,11 +2588,15 @@ namespace machine
         }
       case create_opcode:
         logger << "op create" << std::endl;
+        // TODO REVIEW
         va = pop_word(); // value
         vb = pop_word(); // offset
         vc = pop_word(); // length
 
-        // TODO
+        first = memory.begin() + static_cast<size_t>(vb);
+        last = memory.begin() + static_cast<size_t>(vb) + static_cast<size_t>(vc);
+
+        push_word( adapter.contract_create( std::vector<word>(first, last), va ) ); // addr
         break;
       case call_opcode:
         logger << "op call" << std::endl;
@@ -2601,6 +2624,7 @@ namespace machine
         break;
       case return_opcode:
         logger << "op return" << std::endl;
+        // TODO REVIEW
         // a = pop_word(); // offset
         // b = pop_word(); // length
         // logger << std::to_string(a) << std::endl;
@@ -2611,6 +2635,14 @@ namespace machine
         // for (int i = 0; i < return_value.size(); i++)
         //   return_value[i] = memory[a + i];
         // state = machine_state::stopped;
+
+        va = pop_word(); // offset
+        vb = pop_word(); // length
+
+        first = memory.begin() + static_cast<size_t>(va);
+        last = memory.begin() + static_cast<size_t>(va) + static_cast<size_t>(vb);
+
+        adapter.contract_return( std::vector<word>(first, last) );
         break;
       case delegatecall_opcode:
         logger << "op delegatecall" << std::endl;
@@ -2647,7 +2679,10 @@ namespace machine
         va = pop_word(); // offset
         vb = pop_word(); // length
 
-        adapter.revert(va, vb);
+        first = memory.begin() + static_cast<size_t>(va);
+        last = memory.begin() + static_cast<size_t>(va) + static_cast<size_t>(vb);
+
+        adapter.revert( std::vector<word>(first, last) );
         // TODO REVIEW
         break;
       case selfdestruct_opcode:
