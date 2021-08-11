@@ -61,7 +61,20 @@ machine::chain_adapter make_chain_adapter()
   };
 
   machine::chain_adapter adapter = {
-    get_balance
+    sha3
+    get_balance,
+    get_code_hash,
+    get_block_hash,
+    get_code_at_addr,
+    contract_create,
+    contract_call,
+    contract_create2,
+    revert,
+    access_storage,
+    set_storage,
+    contract_return,
+    selfdestruct,
+    get_input_data
   };
 
   return adapter;

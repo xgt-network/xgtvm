@@ -232,6 +232,7 @@ namespace machine
     stack_variant sv;
     signed_big_word sa, sb, sc;
     size_t offset, dest_offset, length, end, code_size;
+    std::vector<word> contract_args;
     std::vector<word> ext_contract_code;
     std::vector<word>::const_iterator first, last;
     std::string* ss;
@@ -447,6 +448,12 @@ namespace machine
         logger << "op sha3" << std::endl;
         va = pop_word(); // offset
         vb = pop_word(); // length
+
+        first = memory.begin() + static_cast<size_t>(va);
+        last = memory.begin() + static_cast<size_t>(va) + static_cast<size_t>(vb);
+
+        push_word( adapter.sha3( std::vector<word>(first, last) ) ); // hash
+
         break;
       case address_opcode:
         logger << "op address" << std::endl;
@@ -456,7 +463,7 @@ namespace machine
         std::cout << 1 << std::endl;
         logger << "op balance" << std::endl;
         {
-          sv = stack.front(); // wallet_name
+          sv = stack.front(); // addr
           stack.pop_front();
           if (ss = boost::get<std::string>(&sv))
           {
@@ -2601,12 +2608,24 @@ namespace machine
       case call_opcode:
         logger << "op call" << std::endl;
         va = pop_word(); // energy
-        vb = pop_word(); // addr
-        vc = pop_word(); // value
-        vd = pop_word(); // argsOffset
-        ve = pop_word(); // argsLength
-        vf = pop_word(); // retOffset
-        vg = pop_word(); // retLength
+
+        sv = stack.front(); // addr
+        if (ss = boost::get<std::string>(&sv))
+        {
+          stack.pop_front();
+          vb = pop_word(); // value
+          vc = pop_word(); // argsOffset
+          vd = pop_word(); // argsLength
+          ve = pop_word(); // retOffset
+          vf = pop_word(); // retLength
+
+          first = memory.begin() + static_cast<size_t>(vc);
+          last = memory.begin() + static_cast<size_t>(vc) + static_cast<size_t>(vd);
+
+          contract_args = std::vector<word>(first, last);
+
+          adapter.call_contract(*ss, static_cast<uint64_t>(va), vb, contract_args);
+        }
 
         // TODO
         break;
@@ -2683,11 +2702,14 @@ namespace machine
         last = memory.begin() + static_cast<size_t>(va) + static_cast<size_t>(vb);
 
         adapter.revert( std::vector<word>(first, last) );
-        // TODO REVIEW
         break;
       case selfdestruct_opcode:
         logger << "op selfdestruct" << std::endl;
-        // TODO
+        sv = stack.front(); // addr
+        if (ss = boost::get<std::string>(&sv))
+        {
+          adapter.selfdestruct(*ss);
+        }
         break;
     }
   }

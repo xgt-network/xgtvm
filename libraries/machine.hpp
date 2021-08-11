@@ -53,7 +53,7 @@ enum opcode
   shr_opcode = 0x1C,
   sar_opcode = 0x1D,
 
-  sha3_opcode = 0x20, // XXX depends on crypto++ -- needs cmake integration
+  sha3_opcode = 0x20,
   address_opcode = 0x30,
   balance_opcode = 0x31,
   origin_opcode = 0x32,
@@ -222,20 +222,48 @@ struct context
 
 struct chain_adapter
 {
+  // TODO sha3 opcode
+  std::function< std::string(std::vector<word>) > sha3;
+
+  // TODO retrieves balance at addr -- used for balance opcode
   std::function< uint64_t(std::string) > get_balance;
-  std::function< std::vector<word>(std::string) > get_input_data; // TODO used to initialize message data
-  std::function< std::string(std::string) > get_code_hash; // TODO for hashing address -- extcodehash opcode
-  std::function< std::string(big_word) > get_block_hash; // TODO for hashing block number -- blockhash opcode
-  std::function< std::vector<word>(std::string) > get_code_at_addr; // TODO get contract bytecode at address
-  std::function< std::string(std::vector<word>, big_word) > contract_create; // TODO creates a child contract -- create opcode
+
+  // TODO for hashing address -- extcodehash opcode
+  std::function< std::string(std::string) > get_code_hash;
+
+  // TODO for hashing block number -- blockhash opcode
+  std::function< std::string(big_word) > get_block_hash;
+
+  // TODO get contract bytecode at address
+  std::function< std::vector<word>(std::string) > get_code_at_addr;
+
+  // TODO creates a child contract -- create opcode
+  std::function< std::string(std::vector<word>, big_word) > contract_create;
 
   // TODO call a method from another contract -- call opcode -- address, energy, value, args
   std::function< std::string(std::string, int64_t, big_word, std::vector<word>) > contract_call;
-  std::function< std::string(std::vector<word>, word, word, std::string) > create_child_contract2; // TODO creates a child contract -- create2 opcode
-  std::function< bool(std::vector<word>) > revert; // TODO revert opcode
-  std::function< big_word(std::string) > access_storage; // TODO load opcode -- takes key as a parameter and returns value
-  std::function< bool(std::string, std::string, big_word) > set_storage; // TODO sstore opcode -- destination, key, value
-  std::function< bool(std::vector<word>) > contract_return; // TODO return opcode
+
+  // TODO creates a child contract -- create2 opcode
+  std::function< std::string(std::vector<word>, word, word, std::string) > contract_create2;
+
+  // TODO revert opcode
+  std::function< bool(std::vector<word>) > revert;
+
+  // TODO load opcode -- takes key as a parameter and returns value
+  std::function< big_word(std::string) > access_storage;
+
+  // TODO sstore opcode -- destination, key, value
+  std::function< bool(std::string, std::string, big_word) > set_storage;
+
+  // TODO return opcode
+  std::function< bool(std::vector<word>) > contract_return;
+
+  // TODO selfdestruct opcode
+  std::function< bool(std::string) > selfdestruct;
+
+  // TODO used to initialize message data
+  std::function< std::vector<word>(std::string) > get_input_data;
+
 };
 
 class machine
