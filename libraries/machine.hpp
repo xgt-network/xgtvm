@@ -174,7 +174,7 @@ enum opcode
   create2_opcode = 0xF5, // TODO
   staticcall_opcode = 0xFA, // TODO
   revert_opcode = 0xFD,
-  selfdestruct_opcode = 0xFF, // TODO
+  selfdestruct_opcode = 0xFF,
 };
 
 enum class machine_state
