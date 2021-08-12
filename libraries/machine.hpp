@@ -232,7 +232,7 @@ struct chain_adapter
   std::function< std::string(std::string) > get_code_hash;
 
   // TODO for hashing block number -- blockhash opcode
-  std::function< std::string(big_word) > get_block_hash;
+  std::function< std::string(uint64_t) > get_block_hash;
 
   // TODO get contract bytecode at address
   std::function< std::vector<word>(std::string) > get_code_at_addr;
@@ -241,10 +241,10 @@ struct chain_adapter
   std::function< std::string(std::vector<word>, big_word) > contract_create;
 
   // TODO call a method from another contract -- call opcode -- address, energy, value, args
-  std::function< std::string(std::string, int64_t, big_word, std::vector<word>) > contract_call;
+  std::function< std::string(std::string, uint64_t, big_word, std::vector<word>) > contract_call;
 
   // TODO creates a child contract -- create2 opcode
-  std::function< std::string(std::vector<word>, word, word, std::string) > contract_create2;
+  std::function< std::string(big_word, std::vector<word>, std::string) > contract_create2;
 
   // TODO revert opcode
   std::function< bool(std::vector<word>) > revert;
@@ -259,7 +259,7 @@ struct chain_adapter
   std::function< bool(std::vector<word>) > contract_return;
 
   // TODO selfdestruct opcode
-  std::function< bool(std::string) > selfdestruct;
+  std::function< bool(std::string) > self_destruct;
 
   // TODO used to initialize message data
   std::function< std::vector<word>(std::string) > get_input_data;

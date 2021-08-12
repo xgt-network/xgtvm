@@ -632,7 +632,7 @@ namespace machine
       case blockhash_opcode:
         logger << "op blockhash" << std::endl;
         va = pop_word();
-        push_word( adapter.get_block_hash(va) );
+        push_word( adapter.get_block_hash( static_cast<uint64_t>(va) ) );
         break;
       case coinbase_opcode:
         logger << "op coinbase" << std::endl;
@@ -2624,7 +2624,7 @@ namespace machine
 
           contract_args = std::vector<word>(first, last);
 
-          adapter.call_contract(*ss, static_cast<uint64_t>(va), vb, contract_args);
+          adapter.contract_call(*ss, static_cast<uint64_t>(va), vb, contract_args);
         }
 
         // TODO
@@ -2708,7 +2708,7 @@ namespace machine
         sv = stack.front(); // addr
         if (ss = boost::get<std::string>(&sv))
         {
-          adapter.selfdestruct(*ss);
+          adapter.self_destruct(*ss);
         }
         break;
     }
