@@ -231,7 +231,7 @@ namespace machine
     big_word va, vb, vc, vd, ve, vf, vg, vh, vi, vj, vk, vl, vm, vn, vo, vp, vq;
     stack_variant sv;
     signed_big_word sa, sb, sc;
-    size_t offset, dest_offset, length, end, code_size;
+    size_t offset, dest_offset, length, code_size;
     std::vector<word> contract_args;
     std::vector<word> ext_contract_code;
     std::vector<word>::const_iterator first, last;
@@ -464,7 +464,8 @@ namespace machine
         {
           sv = stack.front(); // addr
           stack.pop_front();
-          if (ss = boost::get<std::string>(&sv))
+          ss = boost::get<std::string>(&sv);
+          if (ss)
           {
             push_word( adapter.get_balance(*ss) );
           }
@@ -555,7 +556,8 @@ namespace machine
       case extcodesize_opcode:
         logger << "op extcodesize" << std::endl;
         sv = stack.front(); // addr
-        if (ss = boost::get<std::string>(&sv))
+        ss = boost::get<std::string>(&sv);
+        if (ss)
         {
           stack.pop_front();
           ext_contract_code = adapter.get_code_at_addr(*ss);
@@ -570,7 +572,8 @@ namespace machine
       case extcodecopy_opcode:
         logger << "op extcodecopy" << std::endl;
         sv = stack.front(); // addr
-        if (ss = boost::get<std::string>(&sv))
+        ss = boost::get<std::string>(&sv);
+        if (ss)
         {
           stack.pop_front();
           ext_contract_code = adapter.get_code_at_addr(*ss);
@@ -617,7 +620,8 @@ namespace machine
       case extcodehash_opcode:
         logger << "op extcodehash" << std::endl;
         sv = stack.front(); // addr
-        if (ss = boost::get<std::string>(&sv))
+        ss = boost::get<std::string>(&sv);
+        if (ss)
         {
           stack.pop_front();
           push_word( adapter.get_code_hash(*ss) );
@@ -2609,7 +2613,8 @@ namespace machine
         va = pop_word(); // energy
 
         sv = stack.front(); // addr
-        if (ss = boost::get<std::string>(&sv))
+        ss = boost::get<std::string>(&sv);
+        if (ss)
         {
           stack.pop_front();
           vb = pop_word(); // value
@@ -2788,7 +2793,8 @@ namespace machine
       case selfdestruct_opcode:
         logger << "op selfdestruct" << std::endl;
         sv = stack.front(); // addr
-        if (ss = boost::get<std::string>(&sv))
+        ss = boost::get<std::string>(&sv);
+        if (ss)
         {
           adapter.self_destruct(*ss);
         }
