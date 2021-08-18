@@ -225,7 +225,6 @@ struct chain_adapter
   // TODO sha3 opcode
   std::function< std::string(std::vector<word>) > sha3;
 
-  // TODO retrieves balance at addr -- used for balance opcode
   std::function< uint64_t(std::string) > get_balance;
 
   // TODO for hashing address -- extcodehash opcode

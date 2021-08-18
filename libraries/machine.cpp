@@ -41,6 +41,11 @@ namespace machine
     return a;
   }
 
+  big_word to_big_word(uint64_t a)
+  {
+    return a;
+  }
+
   big_word to_big_word(word a)
   {
     return a;
@@ -2630,7 +2635,7 @@ namespace machine
 
           std::vector<word> contract_call_return = adapter.contract_call(*ss, static_cast<uint64_t>(va), vb, contract_args);
 
-          for (int i = 0; i < static_cast<size_t>(vf); i++)
+          for (size_t i = 0; i < static_cast<size_t>(vf); i++)
             memory[static_cast<size_t>(ve) + i] = contract_call_return[i];
 
           // TODO revise stack return value?
@@ -2647,7 +2652,8 @@ namespace machine
         va = pop_word(); // energy
 
         sv = stack.front(); // addr
-        if (ss = boost::get<std::string>(&sv))
+        ss = boost::get<std::string>(&sv);
+        if (ss)
         {
           stack.pop_front();
           vb = pop_word(); // value
@@ -2663,7 +2669,7 @@ namespace machine
 
           std::vector<word> contract_callcode_return = adapter.contract_callcode(*ss, static_cast<uint64_t>(va), vb, contract_args);
 
-          for (int i = 0; i < static_cast<size_t>(vf); i++)
+          for (size_t i = 0; i < static_cast<size_t>(vf); i++)
             memory[static_cast<size_t>(ve) + i] = contract_callcode_return[i];
 
           // TODO revise stack return value?
@@ -2702,7 +2708,8 @@ namespace machine
         va = pop_word(); // energy
 
         sv = stack.front(); // addr
-        if (ss = boost::get<std::string>(&sv))
+        ss = boost::get<std::string>(&sv);
+        if (ss)
         {
           stack.pop_front();
           vb = pop_word(); // argsOffset
@@ -2717,7 +2724,7 @@ namespace machine
 
           std::vector<word> contract_delegatecall_return = adapter.contract_delegatecall(*ss, static_cast<uint64_t>(va), contract_args);
 
-          for (int i = 0; i < static_cast<size_t>(ve); i++)
+          for (size_t i = 0; i < static_cast<size_t>(ve); i++)
             memory[static_cast<size_t>(vd) + i] = contract_delegatecall_return[i];
 
           // TODO revise stack return value?
@@ -2736,7 +2743,8 @@ namespace machine
         vc = pop_word(); // length
 
         sv = stack.front(); // salt
-        if (ss = boost::get<std::string>(&sv))
+        ss = boost::get<std::string>(&sv);
+        if (ss)
         {
           first = memory.begin() + static_cast<size_t>(vb);
           last = memory.begin() + static_cast<size_t>(vb) + static_cast<size_t>(vc);
@@ -2753,7 +2761,8 @@ namespace machine
         va = pop_word(); // energy
 
         sv = stack.front(); // addr
-        if (ss = boost::get<std::string>(&sv))
+        ss = boost::get<std::string>(&sv);
+        if (ss)
         {
           stack.pop_front();
           vb = pop_word(); // argsOffset
@@ -2768,7 +2777,7 @@ namespace machine
 
           std::vector<word> contract_staticcall_return = adapter.contract_staticcall(*ss, static_cast<uint64_t>(va), contract_args);
 
-          for (int i = 0; i < static_cast<size_t>(ve); i++)
+          for (size_t i = 0; i < static_cast<size_t>(ve); i++)
             memory[static_cast<size_t>(vd) + i] = contract_staticcall_return[i];
 
           // TODO revise stack return value?
