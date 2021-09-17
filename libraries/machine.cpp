@@ -703,14 +703,14 @@ namespace machine
         va = pop_word(); // offset
         // TODO: Verify order
         vb = to_big_word(
-            memory.find(static_cast<size_t>(va) + 7)->second,
-            memory.find(static_cast<size_t>(va) + 6)->second,
-            memory.find(static_cast<size_t>(va) + 5)->second,
-            memory.find(static_cast<size_t>(va) + 4)->second,
-            memory.find(static_cast<size_t>(va) + 3)->second,
-            memory.find(static_cast<size_t>(va) + 2)->second,
-            memory.find(static_cast<size_t>(va) + 1)->second,
-            memory.find(static_cast<size_t>(va) + 0)->second
+            memory[static_cast<size_t>(va) + 7],
+            memory[static_cast<size_t>(va) + 6],
+            memory[static_cast<size_t>(va) + 5],
+            memory[static_cast<size_t>(va) + 4],
+            memory[static_cast<size_t>(va) + 3],
+            memory[static_cast<size_t>(va) + 2],
+            memory[static_cast<size_t>(va) + 1],
+            memory[static_cast<size_t>(va) + 0]
             );
         push_word(vb);
         break;
