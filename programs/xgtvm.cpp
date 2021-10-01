@@ -120,7 +120,7 @@ machine::chain_adapter make_chain_adapter()
     return 0;
   };
 
-  std::function< void(machine::big_word, machine::big_word) > set_storage = [](machine::big_word, machine::big_word value) -> bool
+  std::function< void(machine::big_word, machine::big_word) > set_storage = [](machine::big_word, machine::big_word value) -> void
   {
   };
 
