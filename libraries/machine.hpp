@@ -18,148 +18,6 @@ namespace machine
   typedef boost::multiprecision::int256_t signed_big_word;
   typedef boost::variant<big_word, std::string> stack_variant;
 
-  std::map<uint64_t, int64_t> energy_cost_provider {
-    {0x00, 0},
-    {0x01, 3},
-    {0x02, 5},
-    {0x03, 3},
-    {0x04, 5},
-    {0x05, 5},
-    {0x06, 5},
-    {0x07, 5},
-    {0x08, 8},
-    {0x09, 8},
-    {0x0A, 0}, // TODO -- Exp -- variable
-    {0x0B, 5},
-    {0x10, 3},
-    {0x11, 3},
-    {0x12, 3},
-    {0x13, 3},
-    {0x14, 3},
-    {0x15, 3},
-    {0x16, 3},
-    {0x17, 3},
-    {0x18, 3},
-    {0x19, 3},
-    {0x1A, 3},
-    {0x1B, 3},
-    {0x1C, 3},
-    {0x1D, 3},
-    {0x20, 0}, // TODO -- SHA3 -- variable
-    {0x30, 2},
-    {0x31, 700},
-    {0x32, 2},
-    {0x33, 2},
-    {0x34, 2},
-    {0x35, 3},
-    {0x36, 2},
-    {0x37, 0}, // TODO -- calldatacoy -- variable
-    {0x38, 2},
-    {0x39, 0}, // TODO -- codecopy -- variable
-    {0x3A, 2},
-    {0x3B, 700},
-    {0x3C, 0}, // TODO -- extcodecopy -- variable
-    {0x3D, 2},
-    {0x3E, 0}, // TODO -- returndatacopy -- variable
-    {0x3F, 700},
-    {0x40, 20},
-    {0x41, 2},
-    {0x42, 2},
-    {0x43, 2},
-    {0x44, 2},
-    {0x45, 2},
-    {0x50, 3},
-    {0x51, 3},
-    {0x52, 3},
-    {0x53, 3},
-    {0x54, 800},
-    {0x55, 0}, // TODO -- sstore -- variable
-    {0x56, 8},
-    {0x57, 10},
-    {0x58, 2},
-    {0x59, 2},
-    {0x5A, 2},
-    {0x5B, 1},
-    {0x60, 3},
-    {0x61, 3},
-    {0x62, 3},
-    {0x63, 3},
-    {0x64, 3},
-    {0x65, 3},
-    {0x66, 3},
-    {0x67, 3},
-    {0x68, 3},
-    {0x69, 3},
-    {0x6A, 3},
-    {0x6B, 3},
-    {0x6C, 3},
-    {0x6D, 3},
-    {0x6E, 3},
-    {0x6F, 3},
-    {0x70, 3},
-    {0x71, 3},
-    {0x72, 3},
-    {0x73, 3},
-    {0x74, 3},
-    {0x75, 3},
-    {0x76, 3},
-    {0x77, 3},
-    {0x78, 3},
-    {0x79, 3},
-    {0x7A, 3},
-    {0x7B, 3},
-    {0x7C, 3},
-    {0x7D, 3},
-    {0x7E, 3},
-    {0x7F, 3},
-    {0x80, 3},
-    {0x81, 3},
-    {0x82, 3},
-    {0x83, 3},
-    {0x84, 3},
-    {0x85, 3},
-    {0x86, 3},
-    {0x87, 3},
-    {0x88, 3},
-    {0x89, 3},
-    {0x8A, 3},
-    {0x8B, 3},
-    {0x8C, 3},
-    {0x8D, 3},
-    {0x8E, 3},
-    {0x8F, 3},
-    {0x90, 3},
-    {0x91, 3},
-    {0x92, 3},
-    {0x93, 3},
-    {0x94, 3},
-    {0x95, 3},
-    {0x96, 3},
-    {0x97, 3},
-    {0x98, 3},
-    {0x99, 3},
-    {0x9A, 3},
-    {0x9B, 3},
-    {0x9C, 3},
-    {0x9D, 3},
-    {0x9E, 3},
-    {0x9F, 3},
-    {0xA0, 0}, // TODO -- log0 -- variable
-    {0xA1, 0}, // TODO -- log1 -- variable
-    {0xA2, 0}, // TODO -- log2 -- variable
-    {0xA3, 0}, // TODO -- log3 -- variable
-    {0xA4, 0}, // TODO -- log4 -- variable
-    {0xF0, 0}, // TODO -- create -- variable
-    {0xF1, 0}, // TODO -- call -- variable
-    {0xF2, 0}, // TODO -- callcode -- variable
-    {0xF3, 0},
-    {0xF4, 0}, // TODO -- delegatecall -- variable
-    {0xF5, 0}, // TODO -- create2 -- variable
-    {0xFA, 0}, // TODO -- staticcall -- variable
-    {0xFD, 0},
-    {0xFF, 0} // TODO -- selfdestruct -- variable
-  };
-
   enum opcode
   {
     // ARITHMETIC
@@ -332,7 +190,6 @@ namespace machine
     std::vector<big_word> topics;
   };
 
-
   struct message
   {
     uint32_t flags;
@@ -348,7 +205,7 @@ namespace machine
     size_t code_size;
   };
 
-  // TODO replace with correct data types
+  // TODO ensure correct data types
   struct context
   {
     bool is_debug;
@@ -423,8 +280,9 @@ namespace machine
     std::deque<stack_variant> stack;
     machine_state state = machine_state::running;
     context ctx;
-    std::vector<word> code;
     message msg;
+    opcode current_opcode;
+    std::vector<word> code;
     std::map<size_t, word> memory;
     std::map<big_word, big_word> storage;
     std::vector<word> return_value;
