@@ -2962,7 +2962,7 @@ namespace machine
     {
       s << "\"finalState\":" << "{";
       {
-        s << "\"pc\":" << pc << ",";
+        s << "\"pc\":" << std::hex << pc << ",";
         s << "\"stack\":" << "[";
         for (auto it = stack.cbegin(); it != stack.cend(); ++it)
         {
@@ -3000,7 +3000,7 @@ namespace machine
 
         word current_instruction = code[pc];
         opcode op = (opcode)current_instruction;
-        s << "\"opcode\":" << std::dec << op << ",";
+        s << "\"opcode\":" << std::hex << op << ",";
 
         if (error_message == boost::none)
           s << "\"exceptionError\":" << "null";
