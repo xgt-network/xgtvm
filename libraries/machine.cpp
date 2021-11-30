@@ -298,7 +298,10 @@ namespace machine
         logger << "op div" << std::endl;
         va = pop_word();
         vb = pop_word();
-        vc = va / vb;
+        if (vb == 0)
+          push_word(word(0));
+        else
+          vc = va / vb;
         push_word(vc);
         break;
       case sdiv_opcode:
@@ -2790,6 +2793,7 @@ namespace machine
           }
         }
 
+        return_value = retval;
         adapter.contract_return( retval );
         state = machine_state::stopped; // TODO: Add elsewhere
         break;
@@ -2917,6 +2921,9 @@ namespace machine
           }
         }
         adapter.revert( retval );
+        break;
+      case invalid_opcode:
+        logger << "op invalid" << std::endl;
         break;
       case selfdestruct_opcode:
         logger << "op selfdestruct" << std::endl;

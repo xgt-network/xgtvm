@@ -95,7 +95,7 @@ machine::chain_adapter make_chain_adapter()
     return false;
   };
 
-  std::function< bool(std::vector<machine::word>) > contract_return = [](std::vector<machine::word> memory) -> bool
+  std::function< std::vector<machine::word>(std::vector<machine::word>) > contract_return = [](std::vector<machine::word> memory) -> std::vector<machine::word>
   {
     std::cout << "chain_adapter::contract_return" << std::endl;
     return {};
