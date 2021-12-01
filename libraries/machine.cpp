@@ -53,57 +53,49 @@ namespace machine
 
   big_word to_big_word(word a, word b)
   {
-    big_word va = 0;
-    set_byte(va, 0, a);
-    set_byte(va, 1, b);
+    big_word va = ((big_word)a << 8) | b;
     return va;
   }
 
   big_word to_big_word(word a, word b, word c, word d)
   {
-    big_word va = 0;
-    set_byte(va, 0, a);
-    set_byte(va, 1, b);
-    set_byte(va, 2, c);
-    set_byte(va, 3, d);
-    return va;
+    big_word va = ((big_word)a << 8) | b;
+    big_word vb = (va << 8) | c;
+    big_word vc = (vb << 8) | d;
+    return vc;
   }
 
   big_word to_big_word(word a, word b, word c, word d, word e, word f, word g, word h)
   {
-    big_word va = 0;
-    set_byte(va, 0, a);
-    set_byte(va, 1, b);
-    set_byte(va, 2, c);
-    set_byte(va, 3, d);
-    set_byte(va, 4, e);
-    set_byte(va, 5, f);
-    set_byte(va, 6, g);
-    set_byte(va, 7, h);
-    return va;
+    big_word va = ((big_word)a << 8) | b;
+    big_word vb = (va << 8) | c;
+    big_word vc = (vb << 8) | d;
+    big_word vd = (vc << 8) | e;
+    big_word ve = (vd << 8) | f;
+    big_word vf = (ve << 8) | g;
+    big_word vg = (vf << 8) | h;
+    return vg;
   }
 
   big_word to_big_word(word a, word b, word c, word d, word e, word f, word g,
       word h, word i, word j, word k, word l, word m, word n, word o, word p)
   {
-    big_word va = 0;
-    set_byte(va, 0, a);
-    set_byte(va, 1, b);
-    set_byte(va, 2, c);
-    set_byte(va, 3, d);
-    set_byte(va, 4, e);
-    set_byte(va, 5, f);
-    set_byte(va, 6, g);
-    set_byte(va, 7, h);
-    set_byte(va, 8, i);
-    set_byte(va, 9, j);
-    set_byte(va, 10, k);
-    set_byte(va, 11, l);
-    set_byte(va, 12, m);
-    set_byte(va, 13, n);
-    set_byte(va, 14, o);
-    set_byte(va, 15, p);
-    return va;
+    big_word va = ((big_word)a << 8) | b;
+    big_word vb = (va << 8) | c;
+    big_word vc = (vb << 8) | d;
+    big_word vd = (vc << 8) | e;
+    big_word ve = (vd << 8) | f;
+    big_word vf = (ve << 8) | g;
+    big_word vg = (vf << 8) | h;
+    big_word vh = (vg << 8) | i;
+    big_word vi = (vh << 8) | j;
+    big_word vj = (vi << 8) | k;
+    big_word vk = (vj << 8) | l;
+    big_word vl = (vk << 8) | m;
+    big_word vm = (vl << 8) | n;
+    big_word vn = (vm << 8) | o;
+    big_word vo = (vn << 8) | p;
+    return vo;
   }
 
   big_word to_big_word(word a, word b, word c, word d, word e, word f, word g,
@@ -111,40 +103,38 @@ namespace machine
       word q, word r, word s, word t, word u, word v, word w, word x, word y,
       word z, word aa, word ab, word ac, word ad, word ae, word af)
   {
-    big_word va = 0;
-    set_byte(va, 0, a);
-    set_byte(va, 1, b);
-    set_byte(va, 2, c);
-    set_byte(va, 3, d);
-    set_byte(va, 4, e);
-    set_byte(va, 5, f);
-    set_byte(va, 6, g);
-    set_byte(va, 7, h);
-    set_byte(va, 8, i);
-    set_byte(va, 9, j);
-    set_byte(va, 10, k);
-    set_byte(va, 11, l);
-    set_byte(va, 12, m);
-    set_byte(va, 13, n);
-    set_byte(va, 14, o);
-    set_byte(va, 15, p);
-    set_byte(va, 16, q);
-    set_byte(va, 17, r);
-    set_byte(va, 18, s);
-    set_byte(va, 19, t);
-    set_byte(va, 20, u);
-    set_byte(va, 21, v);
-    set_byte(va, 22, w);
-    set_byte(va, 23, x);
-    set_byte(va, 24, y);
-    set_byte(va, 25, z);
-    set_byte(va, 26, aa);
-    set_byte(va, 27, ab);
-    set_byte(va, 28, ac);
-    set_byte(va, 29, ad);
-    set_byte(va, 30, ae);
-    set_byte(va, 31, af);
-    return va;
+    big_word va  = ((big_word)a << 8) | b;
+    big_word vb  = (va << 8) | c;
+    big_word vc  = (vb << 8) | d;
+    big_word vd  = (vc << 8) | e;
+    big_word ve  = (vd << 8) | f;
+    big_word vf  = (ve << 8) | g;
+    big_word vg  = (vf << 8) | h;
+    big_word vh  = (vg << 8) | i;
+    big_word vi  = (vh << 8) | j;
+    big_word vj  = (vi << 8) | k;
+    big_word vk  = (vj << 8) | l;
+    big_word vl  = (vk << 8) | m;
+    big_word vm  = (vl << 8) | n;
+    big_word vn  = (vm << 8) | o;
+    big_word vo  = (vn << 8) | p;
+    big_word vp  = (vo << 8) | q;
+    big_word vq  = (vp << 8) | r;
+    big_word vr  = (vq << 8) | s;
+    big_word vs  = (vr << 8) | t;
+    big_word vt  = (vs << 8) | u;
+    big_word vu  = (vt << 8) | v;
+    big_word vv  = (vu << 8) | w;
+    big_word vw  = (vv << 8) | x;
+    big_word vx  = (vw << 8) | y;
+    big_word vy  = (vx << 8) | z;
+    big_word vz  = (vy << 8) | aa;
+    big_word vaa = (vz << 8) | ab;
+    big_word vab = (vaa << 8) | ac;
+    big_word vac = (vab << 8) | ad;
+    big_word vad = (vac << 8) | ae;
+    big_word vae = (vad << 8) | af;
+    return vae;
   }
 
   std::string inspect(std::vector<word> words)
@@ -823,7 +813,7 @@ namespace machine
         pc++;
         b = code[pc];
         pc++;
-        va = to_big_word(0, 0, a, b); // TODO: Verify
+        va = to_big_word(a, b); // TODO: Verify
         push_word(va);
         break;
       case push3_opcode:
@@ -2767,6 +2757,7 @@ namespace machine
         break;
       case return_opcode:
         logger << "op return" << std::endl;
+        // XXX
         // TODO REVIEW
         // a = pop_word(); // offset
         // b = pop_word(); // length
@@ -2795,7 +2786,7 @@ namespace machine
 
         return_value = retval;
         adapter.contract_return( retval );
-        state = machine_state::stopped; // TODO: Add elsewhere
+        // state = machine_state::stopped; // TODO: Add elsewhere
         break;
       case delegatecall_opcode:
         logger << "op delegatecall" << std::endl;
