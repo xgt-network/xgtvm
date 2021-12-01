@@ -23,14 +23,6 @@ namespace machine
     return bytes[n];
   }
 
-  void set_byte(boost::multiprecision::uint256_t& x, int n, int v)
-  {
-    std::vector<unsigned char> bytes;
-    boost::multiprecision::export_bits(x, std::back_inserter(bytes), 8);
-    bytes[n] = v;
-    boost::multiprecision::import_bits(x, bytes.begin(), bytes.end());
-  }
-
   size_t uint256_t_to_size_t(boost::multiprecision::uint256_t& x)
   {
     return x.convert_to<size_t>();
@@ -813,7 +805,7 @@ namespace machine
         pc++;
         b = code[pc];
         pc++;
-        va = to_big_word(a, b); // TODO: Verify
+        va = to_big_word(a, b);
         push_word(va);
         break;
       case push3_opcode:
@@ -824,7 +816,7 @@ namespace machine
         pc++;
         c = code[pc];
         pc++;
-        va = to_big_word(0, a, b, c); // TODO: Verify
+        va = to_big_word(0, a, b, c);
         push_word(va);
         break;
       case push4_opcode:
@@ -837,7 +829,7 @@ namespace machine
         pc++;
         d = code[pc];
         pc++;
-        va = to_big_word(a, b, c, d); // TODO: Verify
+        va = to_big_word(a, b, c, d);
         push_word(va);
         break;
       case push5_opcode:
@@ -852,7 +844,7 @@ namespace machine
         pc++;
         e = code[pc];
         pc++;
-        va = to_big_word(0, 0, 0, a, b, c, d, e); // TODO: Verify
+        va = to_big_word(0, 0, 0, a, b, c, d, e);
         push_word(va);
         break;
       case push6_opcode:
@@ -869,7 +861,7 @@ namespace machine
         pc++;
         f = code[pc];
         pc++;
-        va = to_big_word(0, 0, a, b, c, d, e, f); // TODO: Verify
+        va = to_big_word(0, 0, a, b, c, d, e, f);
         push_word(va);
         break;
       case push7_opcode:
@@ -888,7 +880,7 @@ namespace machine
         pc++;
         g = code[pc];
         pc++;
-        va = to_big_word(0, a, b, c, d, e, f, g); // TODO: Verify
+        va = to_big_word(0, a, b, c, d, e, f, g);
         push_word(va);
         break;
       case push8_opcode:
@@ -909,7 +901,7 @@ namespace machine
         pc++;
         h = code[pc];
         pc++;
-        va = to_big_word(a, b, c, d, e, f, g, h); // TODO: Verify
+        va = to_big_word(a, b, c, d, e, f, g, h);
         push_word(va);
         break;
       case push9_opcode:
@@ -932,7 +924,7 @@ namespace machine
         pc++;
         i = code[pc];
         pc++;
-        va = to_big_word(0, 0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i); // TODO: Verify
+        va = to_big_word(0, 0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i);
         push_word(va);
         break;
       case push10_opcode:
@@ -957,7 +949,7 @@ namespace machine
         pc++;
         j = code[pc];
         pc++;
-        va = to_big_word(0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j); // TODO: Verify
+        va = to_big_word(0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j);
         push_word(va);
         break;
       case push11_opcode:
@@ -984,7 +976,7 @@ namespace machine
         pc++;
         k = code[pc];
         pc++;
-        va = to_big_word(0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j, k); // TODO: Verify
+        va = to_big_word(0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j, k);
         push_word(va);
         break;
       case push12_opcode:
@@ -1013,7 +1005,7 @@ namespace machine
         pc++;
         l = code[pc];
         pc++;
-        va = to_big_word(0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j, k, l); // TODO: Verify
+        va = to_big_word(0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j, k, l);
         push_word(va);
         break;
       case push13_opcode:
@@ -1044,7 +1036,7 @@ namespace machine
         pc++;
         m = code[pc];
         pc++;
-        va = to_big_word(0, 0, 0, a, b, c, d, e, f, g, h, i, j, k, l, m); // TODO: Verify
+        va = to_big_word(0, 0, 0, a, b, c, d, e, f, g, h, i, j, k, l, m);
         push_word(va);
         break;
       case push14_opcode:
@@ -1077,7 +1069,7 @@ namespace machine
         pc++;
         n = code[pc];
         pc++;
-        va = to_big_word(0, 0, a, b, c, d, e, f, g, h, i, j, k, l, m, n); // TODO: Verify
+        va = to_big_word(0, 0, a, b, c, d, e, f, g, h, i, j, k, l, m, n);
         push_word(va);
         break;
       case push15_opcode:
@@ -1112,7 +1104,7 @@ namespace machine
         pc++;
         o = code[pc];
         pc++;
-        va = to_big_word(0, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o); // TODO: Verify
+        va = to_big_word(0, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o);
         push_word(va);
         break;
       case push16_opcode:
@@ -1149,7 +1141,7 @@ namespace machine
         pc++;
         p = code[pc];
         pc++;
-        va = to_big_word(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p); // TODO: Verify
+        va = to_big_word(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p);
         push_word(va);
         break;
       case push17_opcode:
@@ -1189,7 +1181,7 @@ namespace machine
         q = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, a, b, c, d,
-            e, f, g, h, i, j, k, l, m, n, o, p, q); // TODO: Verify
+            e, f, g, h, i, j, k, l, m, n, o, p, q);
         push_word(va);
         break;
       case push18_opcode:
@@ -1231,7 +1223,7 @@ namespace machine
         r = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, a, b, c, d, e,
-            f, g, h, i, j, k, l, m, n, o, p, q, r); // TODO: Verify
+            f, g, h, i, j, k, l, m, n, o, p, q, r);
         push_word(va);
         break;
       case push19_opcode:
@@ -1275,7 +1267,7 @@ namespace machine
         s = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, a, b, c, d, e, f,
-            g, h, i, j, k, l, m, n, o, p, q, r, s); // TODO: Verify
+            g, h, i, j, k, l, m, n, o, p, q, r, s);
         push_word(va);
         break;
       case push20_opcode:
@@ -1321,7 +1313,7 @@ namespace machine
         t = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g,
-            h, i, j, k, l, m, n, o, p, q, r, s, t); // TODO: Verify
+            h, i, j, k, l, m, n, o, p, q, r, s, t);
         push_word(va);
         break;
       case push21_opcode:
@@ -1369,7 +1361,7 @@ namespace machine
         u = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g, h,
-            i, j, k, l, m, n, o, p, q, r, s, t, u); // TODO: Verify
+            i, j, k, l, m, n, o, p, q, r, s, t, u);
         push_word(va);
         break;
       case push22_opcode:
@@ -1419,7 +1411,7 @@ namespace machine
         v = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i,
-            j, k, l, m, n, o, p, q, r, s, t, u, v); // TODO: Verify
+            j, k, l, m, n, o, p, q, r, s, t, u, v);
         push_word(va);
         break;
       case push23_opcode:
@@ -1471,7 +1463,7 @@ namespace machine
         w = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j,
-            k, l, m, n, o, p, q, r, s, t, u, v, w); // TODO: Verify
+            k, l, m, n, o, p, q, r, s, t, u, v, w);
         push_word(va);
         break;
       case push24_opcode:
@@ -1525,7 +1517,7 @@ namespace machine
         x = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j, k,
-            l, m, n, o, p, q, r, s, t, u, v, w, x); // TODO: Verify
+            l, m, n, o, p, q, r, s, t, u, v, w, x);
         push_word(va);
         break;
       case push25_opcode:
@@ -1581,7 +1573,7 @@ namespace machine
         y = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j, k, l,
-            m, n, o, p, q, r, s, t, u, v, w, x, y); // TODO: Verify
+            m, n, o, p, q, r, s, t, u, v, w, x, y);
         push_word(va);
         break;
       case push26_opcode:
@@ -1639,7 +1631,7 @@ namespace machine
         z = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j, k, l, m,
-            n, o, p, q, r, s, t, u, v, w, x, y, z); // TODO: Verify
+            n, o, p, q, r, s, t, u, v, w, x, y, z);
         push_word(va);
         break;
       case push27_opcode:
@@ -1699,7 +1691,7 @@ namespace machine
         aa = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j, k, l, m, n,
-            o, p, q, r, s, t, u, v, w, x, y, z, aa); // TODO: Verify
+            o, p, q, r, s, t, u, v, w, x, y, z, aa);
         push_word(va);
         break;
       case push28_opcode:
@@ -1761,7 +1753,7 @@ namespace machine
         ab = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, 0, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o,
-            p, q, r, s, t, u, v, w, x, y, z, aa, ab); // TODO: Verify
+            p, q, r, s, t, u, v, w, x, y, z, aa, ab);
         push_word(va);
         break;
       case push29_opcode:
@@ -1825,7 +1817,7 @@ namespace machine
         ac = code[pc];
         pc++;
         va = to_big_word(0, 0, 0, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p,
-            q, r, s, t, u, v, w, x, y, z, aa, ab, ac); // TODO: Verify
+            q, r, s, t, u, v, w, x, y, z, aa, ab, ac);
         push_word(va);
         break;
       case push30_opcode:
@@ -1891,7 +1883,7 @@ namespace machine
         ad = code[pc];
         pc++;
         va = to_big_word(0, 0, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p,
-            q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad); // TODO: Verify
+            q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad);
         push_word(va);
         break;
       case push31_opcode:
@@ -1959,7 +1951,7 @@ namespace machine
         ae = code[pc];
         pc++;
         va = to_big_word(0, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p,
-            q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad, ae); // TODO: Verify
+            q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad, ae);
         push_word(va);
         break;
       case push32_opcode:
@@ -2029,7 +2021,7 @@ namespace machine
         af = code[pc];
         pc++;
         va = to_big_word(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p,
-            q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad, ae, af); // TODO: Verify
+            q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad, ae, af);
         push_word(va);
         break;
       case dup1_opcode:
