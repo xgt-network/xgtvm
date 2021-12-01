@@ -771,11 +771,14 @@ namespace machine
       case jumpi_opcode:
         logger << "op jumpi" << std::endl;
         print_stack();
-        va = pop_word();
-        vb = pop_word();
-        if (vb != 0)
-          if (code[get_byte(va, 0)] == jumpdest_opcode)
+        va = pop_word(); // destination
+        vb = pop_word(); // condition
+        if (vb != 0) {
+          word jumpdest_instruction = code[get_byte(va, 0)];
+          opcode jumpdest_op = (opcode)jumpdest_instruction;
+          if (jumpdest_op == jumpdest_opcode)
             pc = get_byte(va, 0);
+        }
         break;
       case pc_opcode:
         logger << "op pc" << std::endl;
@@ -2776,7 +2779,7 @@ namespace machine
           }
         }
 
-        return_value = retval;
+        // return_value = retval;
         adapter.contract_return( retval );
         // state = machine_state::stopped; // TODO: Add elsewhere
         break;
@@ -3007,7 +3010,6 @@ namespace machine
           if (memory.size() > 1 && std::next(it, 1) != memory.cend())
             s << ",";
         }
-        s << "}";
       }
       s << "}";
     }
