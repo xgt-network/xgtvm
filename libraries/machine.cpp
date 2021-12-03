@@ -23,6 +23,16 @@ namespace machine
     return bytes[n];
   }
 
+  uint16_t get_bytes(boost::multiprecision::uint256_t x, int n)
+  {
+    std::vector<unsigned char> bytes;
+    boost::multiprecision::export_bits(x, std::back_inserter(bytes), 8);
+    if (x > 255) {
+      return ((uint16_t)bytes[n] << 8) | bytes[n + 1];
+    }
+    return bytes[n];
+  }
+
   size_t uint256_t_to_size_t(boost::multiprecision::uint256_t& x)
   {
     return x.convert_to<size_t>();
@@ -127,6 +137,16 @@ namespace machine
     big_word vad = (vac << 8) | ae;
     big_word vae = (vad << 8) | af;
     return vae;
+  }
+
+  std::vector<word> from_big_word(big_word a)
+  {
+    std::vector<word> vec;
+    for (size_t i = 0; i < 31; i++) {
+      vec.push_back(static_cast<word>(((a >>= (8 * i)) & 0xFF)));
+    }
+
+    return vec;
   }
 
   std::string inspect(std::vector<word> words)
@@ -241,9 +261,13 @@ namespace machine
     word a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x,
          y, z, aa, ab, ac, ad, ae, af;
     big_word va, vb, vc, vd, ve, vf, vg, vh, vi, vj, vk, vl, vm, vn, vo, vp, vq;
+
+    word jumpdest_instruction;
+    opcode jumpdest_op;
     stack_variant sv;
     signed_big_word sa, sb, sc;
     size_t offset, dest_offset, length, code_size = 0;
+    std::vector<word> vec1;
     std::vector<word> contract_args;
     std::vector<word> retval;
     std::vector<word> ext_contract_code;
@@ -522,15 +546,39 @@ namespace machine
         }
 
         va = to_big_word(
-            msg.input_data[offset + 7],
-            msg.input_data[offset + 6],
-            msg.input_data[offset + 5],
-            msg.input_data[offset + 4],
-            msg.input_data[offset + 3],
-            msg.input_data[offset + 2],
+            msg.input_data[offset + 0],
             msg.input_data[offset + 1],
-            msg.input_data[offset + 0]
-            );
+            msg.input_data[offset + 2],
+            msg.input_data[offset + 3],
+            msg.input_data[offset + 4],
+            msg.input_data[offset + 5],
+            msg.input_data[offset + 6],
+            msg.input_data[offset + 7],
+            msg.input_data[offset + 8],
+            msg.input_data[offset + 9],
+            msg.input_data[offset + 10],
+            msg.input_data[offset + 11],
+            msg.input_data[offset + 12],
+            msg.input_data[offset + 13],
+            msg.input_data[offset + 14],
+            msg.input_data[offset + 15],
+            msg.input_data[offset + 16],
+            msg.input_data[offset + 17],
+            msg.input_data[offset + 18],
+            msg.input_data[offset + 19],
+            msg.input_data[offset + 20],
+            msg.input_data[offset + 21],
+            msg.input_data[offset + 22],
+            msg.input_data[offset + 23],
+            msg.input_data[offset + 24],
+            msg.input_data[offset + 25],
+            msg.input_data[offset + 26],
+            msg.input_data[offset + 27],
+            msg.input_data[offset + 28],
+            msg.input_data[offset + 29],
+            msg.input_data[offset + 30],
+            msg.input_data[offset + 31]
+        );
         push_word(va);
         break;
       case calldatasize_opcode:
@@ -687,8 +735,31 @@ namespace machine
       case mload_opcode:
         logger << "op mload" << std::endl;
         va = pop_word(); // offset
-        // TODO: Verify order
         vb = to_big_word(
+            memory[static_cast<size_t>(va) + 31],
+            memory[static_cast<size_t>(va) + 30],
+            memory[static_cast<size_t>(va) + 29],
+            memory[static_cast<size_t>(va) + 28],
+            memory[static_cast<size_t>(va) + 27],
+            memory[static_cast<size_t>(va) + 26],
+            memory[static_cast<size_t>(va) + 25],
+            memory[static_cast<size_t>(va) + 24],
+            memory[static_cast<size_t>(va) + 23],
+            memory[static_cast<size_t>(va) + 22],
+            memory[static_cast<size_t>(va) + 21],
+            memory[static_cast<size_t>(va) + 20],
+            memory[static_cast<size_t>(va) + 19],
+            memory[static_cast<size_t>(va) + 18],
+            memory[static_cast<size_t>(va) + 17],
+            memory[static_cast<size_t>(va) + 16],
+            memory[static_cast<size_t>(va) + 15],
+            memory[static_cast<size_t>(va) + 14],
+            memory[static_cast<size_t>(va) + 13],
+            memory[static_cast<size_t>(va) + 12],
+            memory[static_cast<size_t>(va) + 11],
+            memory[static_cast<size_t>(va) + 10],
+            memory[static_cast<size_t>(va) + 9],
+            memory[static_cast<size_t>(va) + 8],
             memory[static_cast<size_t>(va) + 7],
             memory[static_cast<size_t>(va) + 6],
             memory[static_cast<size_t>(va) + 5],
@@ -706,15 +777,41 @@ namespace machine
         vb = pop_word(); // value
         logger << "memory before: " << inspect(memory) << std::endl;
 
+        vec1 = from_big_word(vb);
+
         // TODO: Verify order
-        memory[static_cast<size_t>(va) + 0] = get_byte(vb, 7);
-        memory[static_cast<size_t>(va) + 1] = get_byte(vb, 6);
-        memory[static_cast<size_t>(va) + 2] = get_byte(vb, 5);
-        memory[static_cast<size_t>(va) + 3] = get_byte(vb, 4);
-        memory[static_cast<size_t>(va) + 4] = get_byte(vb, 3);
-        memory[static_cast<size_t>(va) + 5] = get_byte(vb, 2);
-        memory[static_cast<size_t>(va) + 6] = get_byte(vb, 1);
-        memory[static_cast<size_t>(va) + 7] = get_byte(vb, 0);
+        memory[static_cast<size_t>(va) + 0]  = vec1[31];
+        memory[static_cast<size_t>(va) + 1]  = vec1[30];
+        memory[static_cast<size_t>(va) + 2]  = vec1[29];
+        memory[static_cast<size_t>(va) + 3]  = vec1[28];
+        memory[static_cast<size_t>(va) + 4]  = vec1[27];
+        memory[static_cast<size_t>(va) + 5]  = vec1[26];
+        memory[static_cast<size_t>(va) + 6]  = vec1[25];
+        memory[static_cast<size_t>(va) + 7]  = vec1[24];
+        memory[static_cast<size_t>(va) + 8]  = vec1[23];
+        memory[static_cast<size_t>(va) + 9]  = vec1[22];
+        memory[static_cast<size_t>(va) + 10] = vec1[21];
+        memory[static_cast<size_t>(va) + 11] = vec1[20];
+        memory[static_cast<size_t>(va) + 12] = vec1[19];
+        memory[static_cast<size_t>(va) + 13] = vec1[18];
+        memory[static_cast<size_t>(va) + 14] = vec1[17];
+        memory[static_cast<size_t>(va) + 15] = vec1[16];
+        memory[static_cast<size_t>(va) + 16] = vec1[15];
+        memory[static_cast<size_t>(va) + 17] = vec1[14];
+        memory[static_cast<size_t>(va) + 18] = vec1[13];
+        memory[static_cast<size_t>(va) + 19] = vec1[12];
+        memory[static_cast<size_t>(va) + 20] = vec1[11];
+        memory[static_cast<size_t>(va) + 21] = vec1[10];
+        memory[static_cast<size_t>(va) + 22] = vec1[9];
+        memory[static_cast<size_t>(va) + 23] = vec1[8];
+        memory[static_cast<size_t>(va) + 24] = vec1[7];
+        memory[static_cast<size_t>(va) + 25] = vec1[6];
+        memory[static_cast<size_t>(va) + 26] = vec1[5];
+        memory[static_cast<size_t>(va) + 27] = vec1[4];
+        memory[static_cast<size_t>(va) + 28] = vec1[3];
+        memory[static_cast<size_t>(va) + 29] = vec1[2];
+        memory[static_cast<size_t>(va) + 30] = vec1[1];
+        memory[static_cast<size_t>(va) + 31] = vec1[0];
         logger << "memory after: " << inspect(memory) << std::endl;
         break;
       case mstore8_opcode:
@@ -765,19 +862,23 @@ namespace machine
       case jump_opcode:
         logger << "op jump" << std::endl;
         va = pop_word(); // destination
-        if (code[get_byte(va, 0)] == jumpdest_opcode)
-          pc = get_byte(va, 0);
+
+        jumpdest_instruction = code[get_bytes(va, 0)];
+        jumpdest_op = (opcode)jumpdest_instruction;
+        if (jumpdest_op == jumpdest_opcode)
+          pc = get_bytes(va, 0);
         break;
       case jumpi_opcode:
         logger << "op jumpi" << std::endl;
         print_stack();
         va = pop_word(); // destination
         vb = pop_word(); // condition
+
         if (vb != 0) {
-          word jumpdest_instruction = code[get_byte(va, 0)];
-          opcode jumpdest_op = (opcode)jumpdest_instruction;
+          jumpdest_instruction = code[get_bytes(va, 0)];
+          jumpdest_op = (opcode)jumpdest_instruction;
           if (jumpdest_op == jumpdest_opcode)
-            pc = get_byte(va, 0);
+            pc = get_bytes(va, 0);
         }
         break;
       case pc_opcode:
@@ -2111,8 +2212,8 @@ namespace machine
         logger << "op swap1" << std::endl;
         va = pop_word();
         vb = pop_word();
-        push_word(a);
-        push_word(b);
+        push_word(va);
+        push_word(vb);
         break;
       case swap2_opcode:
         logger << "op swap2" << std::endl;
@@ -2779,7 +2880,7 @@ namespace machine
           }
         }
 
-        // return_value = retval;
+        return_value = retval;
         adapter.contract_return( retval );
         // state = machine_state::stopped; // TODO: Add elsewhere
         break;
@@ -2905,6 +3006,7 @@ namespace machine
           else {
             retval.push_back(word(0));
           }
+          memory[i] = 0;
         }
         adapter.revert( retval );
         break;
