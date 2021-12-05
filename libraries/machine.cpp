@@ -155,7 +155,6 @@ namespace machine
     ss << "[";
     for (size_t i = 0; i < words.size(); i++)
     {
-      // TODO: Print hex
       ss << std::to_string(words.at(i));
       if (i != words.size() - 1)
         ss << ", ";
@@ -174,7 +173,6 @@ namespace machine
     {
       it = words.find(i);
       if (it != words.end()) {
-        // TODO: Print hex
         ss << std::to_string(it->second);
         ss << ", ";
       }
@@ -222,8 +220,6 @@ namespace machine
     stack.push_front(s);
   }
 
-  // TODO: Make better
-  // TODO: Return string instead?
   void machine::print_stack()
   {
     for (auto it = stack.cbegin(); it != stack.cend(); ++it)
@@ -273,6 +269,7 @@ namespace machine
     std::vector<word> ext_contract_code;
     std::vector<word>::const_iterator first, last;
     std::string* ss;
+    std::stringstream sstream;
     switch (op)
     {
       case stop_opcode:
@@ -284,6 +281,7 @@ namespace machine
         va = pop_word();
         vb = pop_word();
         vc = va + vb;
+
         push_word(vc);
         break;
       case mul_opcode:
@@ -500,7 +498,9 @@ namespace machine
           }
         }
 
-        push_word( adapter.sha3( retval ) ); // hash
+        sstream << std::hex << adapter.sha3( retval );
+        sstream >> vc;
+        push_word( vc ); // hash
 
         break;
       case address_opcode:
@@ -736,39 +736,39 @@ namespace machine
         logger << "op mload" << std::endl;
         va = pop_word(); // offset
         vb = to_big_word(
-            memory[static_cast<size_t>(va) + 31],
-            memory[static_cast<size_t>(va) + 30],
-            memory[static_cast<size_t>(va) + 29],
-            memory[static_cast<size_t>(va) + 28],
-            memory[static_cast<size_t>(va) + 27],
-            memory[static_cast<size_t>(va) + 26],
-            memory[static_cast<size_t>(va) + 25],
-            memory[static_cast<size_t>(va) + 24],
-            memory[static_cast<size_t>(va) + 23],
-            memory[static_cast<size_t>(va) + 22],
-            memory[static_cast<size_t>(va) + 21],
-            memory[static_cast<size_t>(va) + 20],
-            memory[static_cast<size_t>(va) + 19],
-            memory[static_cast<size_t>(va) + 18],
-            memory[static_cast<size_t>(va) + 17],
-            memory[static_cast<size_t>(va) + 16],
-            memory[static_cast<size_t>(va) + 15],
-            memory[static_cast<size_t>(va) + 14],
-            memory[static_cast<size_t>(va) + 13],
-            memory[static_cast<size_t>(va) + 12],
-            memory[static_cast<size_t>(va) + 11],
-            memory[static_cast<size_t>(va) + 10],
-            memory[static_cast<size_t>(va) + 9],
-            memory[static_cast<size_t>(va) + 8],
-            memory[static_cast<size_t>(va) + 7],
-            memory[static_cast<size_t>(va) + 6],
-            memory[static_cast<size_t>(va) + 5],
-            memory[static_cast<size_t>(va) + 4],
-            memory[static_cast<size_t>(va) + 3],
-            memory[static_cast<size_t>(va) + 2],
+            memory[static_cast<size_t>(va) + 0],
             memory[static_cast<size_t>(va) + 1],
-            memory[static_cast<size_t>(va) + 0]
-            );
+            memory[static_cast<size_t>(va) + 2],
+            memory[static_cast<size_t>(va) + 3],
+            memory[static_cast<size_t>(va) + 4],
+            memory[static_cast<size_t>(va) + 5],
+            memory[static_cast<size_t>(va) + 6],
+            memory[static_cast<size_t>(va) + 7],
+            memory[static_cast<size_t>(va) + 8],
+            memory[static_cast<size_t>(va) + 9],
+            memory[static_cast<size_t>(va) + 10],
+            memory[static_cast<size_t>(va) + 11],
+            memory[static_cast<size_t>(va) + 12],
+            memory[static_cast<size_t>(va) + 13],
+            memory[static_cast<size_t>(va) + 14],
+            memory[static_cast<size_t>(va) + 15],
+            memory[static_cast<size_t>(va) + 16],
+            memory[static_cast<size_t>(va) + 17],
+            memory[static_cast<size_t>(va) + 18],
+            memory[static_cast<size_t>(va) + 19],
+            memory[static_cast<size_t>(va) + 20],
+            memory[static_cast<size_t>(va) + 21],
+            memory[static_cast<size_t>(va) + 22],
+            memory[static_cast<size_t>(va) + 23],
+            memory[static_cast<size_t>(va) + 24],
+            memory[static_cast<size_t>(va) + 25],
+            memory[static_cast<size_t>(va) + 26],
+            memory[static_cast<size_t>(va) + 27],
+            memory[static_cast<size_t>(va) + 28],
+            memory[static_cast<size_t>(va) + 29],
+            memory[static_cast<size_t>(va) + 30],
+            memory[static_cast<size_t>(va) + 31]
+        );
         push_word(vb);
         break;
       case mstore_opcode:
@@ -779,7 +779,6 @@ namespace machine
 
         vec1 = from_big_word(vb);
 
-        // TODO: Verify order
         memory[static_cast<size_t>(va) + 0]  = vec1[31];
         memory[static_cast<size_t>(va) + 1]  = vec1[30];
         memory[static_cast<size_t>(va) + 2]  = vec1[29];
@@ -2130,13 +2129,13 @@ namespace machine
         break;
       case dup1_opcode:
         logger << "op dup1" << std::endl;
-        sv = stack.front();
+        sv = stack.at(0);
         push_word(sv);
         break;
       case dup2_opcode:
         logger << "op dup2" << std::endl;
-        sv  = stack.at(1);
-        push_word(va);
+        sv = stack.at(1);
+        push_word(sv);
         break;
       case dup3_opcode:
         logger << "op dup3" << std::endl;
@@ -2882,7 +2881,7 @@ namespace machine
 
         return_value = retval;
         adapter.contract_return( retval );
-        // state = machine_state::stopped; // TODO: Add elsewhere
+        state = machine_state::stopped;
         break;
       case delegatecall_opcode:
         logger << "op delegatecall" << std::endl;
