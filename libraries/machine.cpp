@@ -106,32 +106,32 @@ namespace machine
       word z, word aa, word ab, word ac, word ad, word ae, word af)
   {
     big_word va  = ((big_word)a << 8) | b;
-    big_word vb  = (va << 8) | c;
-    big_word vc  = (vb << 8) | d;
-    big_word vd  = (vc << 8) | e;
-    big_word ve  = (vd << 8) | f;
-    big_word vf  = (ve << 8) | g;
-    big_word vg  = (vf << 8) | h;
-    big_word vh  = (vg << 8) | i;
-    big_word vi  = (vh << 8) | j;
-    big_word vj  = (vi << 8) | k;
-    big_word vk  = (vj << 8) | l;
-    big_word vl  = (vk << 8) | m;
-    big_word vm  = (vl << 8) | n;
-    big_word vn  = (vm << 8) | o;
-    big_word vo  = (vn << 8) | p;
-    big_word vp  = (vo << 8) | q;
-    big_word vq  = (vp << 8) | r;
-    big_word vr  = (vq << 8) | s;
-    big_word vs  = (vr << 8) | t;
-    big_word vt  = (vs << 8) | u;
-    big_word vu  = (vt << 8) | v;
-    big_word vv  = (vu << 8) | w;
-    big_word vw  = (vv << 8) | x;
-    big_word vx  = (vw << 8) | y;
-    big_word vy  = (vx << 8) | z;
-    big_word vz  = (vy << 8) | aa;
-    big_word vaa = (vz << 8) | ab;
+    big_word vb  = (va << 8)  | c;
+    big_word vc  = (vb << 8)  | d;
+    big_word vd  = (vc << 8)  | e;
+    big_word ve  = (vd << 8)  | f;
+    big_word vf  = (ve << 8)  | g;
+    big_word vg  = (vf << 8)  | h;
+    big_word vh  = (vg << 8)  | i;
+    big_word vi  = (vh << 8)  | j;
+    big_word vj  = (vi << 8)  | k;
+    big_word vk  = (vj << 8)  | l;
+    big_word vl  = (vk << 8)  | m;
+    big_word vm  = (vl << 8)  | n;
+    big_word vn  = (vm << 8)  | o;
+    big_word vo  = (vn << 8)  | p;
+    big_word vp  = (vo << 8)  | q;
+    big_word vq  = (vp << 8)  | r;
+    big_word vr  = (vq << 8)  | s;
+    big_word vs  = (vr << 8)  | t;
+    big_word vt  = (vs << 8)  | u;
+    big_word vu  = (vt << 8)  | v;
+    big_word vv  = (vu << 8)  | w;
+    big_word vw  = (vv << 8)  | x;
+    big_word vx  = (vw << 8)  | y;
+    big_word vy  = (vx << 8)  | z;
+    big_word vz  = (vy << 8)  | aa;
+    big_word vaa = (vz << 8)  | ab;
     big_word vab = (vaa << 8) | ac;
     big_word vac = (vab << 8) | ad;
     big_word vad = (vac << 8) | ae;
@@ -142,8 +142,9 @@ namespace machine
   std::vector<word> from_big_word(big_word a)
   {
     std::vector<word> vec;
+    vec.push_back(static_cast<word>(a & 0xFF));
     for (size_t i = 0; i < 31; i++) {
-      vec.push_back(static_cast<word>(((a >>= (8 * i)) & 0xFF)));
+      vec.push_back(static_cast<word>(((a >>= 8) & 0xFF)));
     }
 
     return vec;
@@ -469,7 +470,8 @@ namespace machine
         va = pop_word(); // shift
         vb = pop_word(); // value
 
-        vc = vb >> va.convert_to<size_t>();
+        // TODO Implement shift in a loop for va sizes larger than 256
+        vc = vb >> static_cast<size_t>(va);
         push_word(vc);
 
         break;
@@ -611,11 +613,6 @@ namespace machine
         dest_offset = static_cast<size_t>( pop_word() );
         offset = static_cast<size_t>( pop_word() );
         length = static_cast<size_t>( pop_word() );
-
-        if ((offset + length) > msg.input_size) {
-          logger << "Codecopy end index is larger than message input_size" << std::endl;
-          break;
-        }
 
         for (size_t i = 0; i < length; ++i)
           memory[dest_offset + i] = code[offset + i];
@@ -2868,7 +2865,7 @@ namespace machine
         va = pop_word(); // offset
         vb = pop_word(); // length
 
-        for (size_t i = static_cast<size_t>(va); i < static_cast<size_t>(vb); i++) {
+        for (size_t i = static_cast<size_t>(va); i < static_cast<size_t>(va + vb); i++) {
           std::map<size_t,word>::iterator it;
           it = memory.find(i);
           if (it != memory.end()) {
@@ -3007,7 +3004,9 @@ namespace machine
           }
           memory[i] = 0;
         }
+        return_value = retval;
         adapter.revert( retval );
+        state = machine_state::stopped;
         break;
       case invalid_opcode:
         logger << "op invalid" << std::endl;
