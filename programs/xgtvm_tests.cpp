@@ -11,16 +11,18 @@
 
 machine::chain_adapter make_chain_adapter()
 {
-  std::function< std::string(std::vector<machine::word>) > sha3 = [](std::vector<machine::word> memory) -> std::string
+  std::function< machine::big_word(std::vector<machine::word>) > sha3 = [](std::vector<machine::word> memory) -> machine::big_word
   {
     std::cout << "chain_adapter::sha3" << std::endl;
-    return 0;
+    machine::big_word retval = 0;
+    return retval;
   };
 
   std::function< machine::big_word(machine::big_word) > get_balance = [](machine::big_word address_ripemd160) -> machine::big_word
   {
     std::cout << "chain_adapter::get_balance" << std::endl;
-    return 0;
+    machine::big_word retval = 0;
+    return retval;
   };
 
   std::function< std::string(std::string) > get_code_hash = [](std::string address) -> std::string
@@ -53,13 +55,13 @@ machine::chain_adapter make_chain_adapter()
     return {};
   };
 
-  std::function< std::vector<machine::word>(std::string, uint64_t, machine::big_word, std::vector<machine::word>) > contract_callcode = [](std::string address, uint64_t energy, machine::big_word value, std::vector<machine::word> args) -> std::vector<machine::word>
+  std::function< std::pair< machine::word, std::vector<machine::word> >(machine::big_word, uint64_t, machine::big_word, std::vector<machine::word>) > contract_callcode = [](machine::big_word address, uint64_t energy, machine::big_word value, std::vector<machine::word> args) -> std::pair< machine::word, std::vector<machine::word> >
   {
     std::cout << "chain_adapter::contract_callcode" << std::endl;
     return {};
   };
 
-  std::function< std::vector<machine::word>(std::string, uint64_t, std::vector<machine::word>) > contract_delegatecall = [](std::string address, uint64_t energy, std::vector<machine::word> args) -> std::vector<machine::word>
+  std::function< std::pair< machine::word, std::vector<machine::word> >(machine::big_word, uint64_t, std::vector<machine::word>) > contract_delegatecall = [](machine::big_word address, uint64_t energy, std::vector<machine::word> args) -> std::pair< machine::word, std::vector<machine::word> >
   {
     std::cout << "chain_adapter::contract_delegatecall" << std::endl;
     return {};
@@ -71,7 +73,7 @@ machine::chain_adapter make_chain_adapter()
     return {};
   };
 
-  std::function< machine::big_word(std::vector<machine::word>, machine::big_word, std::string) > contract_create2 = [](std::vector<machine::word> memory, machine::big_word value, std::string salt) -> machine::big_word
+  std::function< machine::big_word(std::vector<machine::word>, machine::big_word, machine::big_word) > contract_create2 = [](std::vector<machine::word> memory, machine::big_word value, machine::big_word salt) -> machine::big_word
   {
     std::cout << "chain_adapter::contract_create2" << std::endl;
     return {};
@@ -86,7 +88,9 @@ machine::chain_adapter make_chain_adapter()
   std::function< machine::big_word(machine::big_word) > get_storage = [](machine::big_word) -> machine::big_word
   {
     std::cout << "chain_adapter::get_storage" << std::endl;
-    return 0;
+
+    machine::big_word retval = 0;
+    return retval;
   };
 
   std::function< bool(machine::big_word, machine::big_word) > set_storage = [](machine::big_word, machine::big_word value) -> bool

@@ -17,6 +17,101 @@ namespace machine
   typedef boost::multiprecision::int256_t signed_big_word;
   typedef boost::variant<big_word, std::string> stack_variant;
 
+  struct typed_word
+  {
+    word value;
+    bool is_sparse;
+
+    typed_word(const word _value, const bool _is_sparse = 0) : value(value), is_sparse(_is_sparse) {}
+
+    bool operator==(const typed_word &other) const {
+      return this->value == other.value;
+    }
+
+    bool operator!=(const typed_word &other) const {
+      return !(*this == other);
+    }
+
+    bool operator<(const typed_word &other) const {
+      return this->value < other.value;
+    }
+
+    bool operator>(const typed_word &other) const {
+      return this->value > other.value;
+    }
+
+    typed_word operator=(const typed_word &rhs) {
+      if (this == &rhs)
+        return *this;
+      this->value = rhs.value;
+      return *this;
+    }
+  };
+
+  struct typed_big_word
+  {
+    big_word value;
+    bool is_sparse;
+
+    typed_big_word(const big_word _value, const bool _is_sparse = 0) : value(value), is_sparse(_is_sparse) {}
+
+    bool operator==(const typed_big_word &other) const {
+      return this->value == other.value;
+    }
+
+    bool operator!=(const typed_big_word &other) const {
+      return !(*this == other);
+    }
+
+    bool operator<(const typed_big_word &other) const {
+      return this->value < other.value;
+    }
+
+    bool operator>(const typed_big_word &other) const {
+      return this->value > other.value;
+    }
+
+    typed_big_word operator=(const typed_big_word &rhs) {
+      if (this == &rhs)
+        return *this;
+      this->value = rhs.value;
+      return *this;
+    }
+  };
+
+  struct typed_signed_big_word
+  {
+    signed_big_word value;
+    bool is_sparse;
+
+    typed_signed_big_word(const signed_big_word _value, const bool _is_sparse = 0) : value(value), is_sparse(_is_sparse) {}
+
+    bool operator==(const typed_signed_big_word &other) const {
+      return this->value == other.value;
+    }
+
+    bool operator!=(const typed_signed_big_word &other) const {
+      return !(*this == other);
+    }
+
+    bool operator<(const typed_signed_big_word &other) const {
+      return this->value < other.value;
+    }
+
+    bool operator>(const typed_signed_big_word &other) const {
+      return this->value > other.value;
+    }
+
+    typed_signed_big_word operator=(const typed_signed_big_word &rhs) {
+      if (this == &rhs)
+        return *this;
+      this->value = rhs.value;
+      return *this;
+    }
+  };
+
+  typedef boost::variant<typed_big_word, std::string> typed_stack_variant;
+
   enum opcode
   {
     // ARITHMETIC
@@ -222,7 +317,7 @@ namespace machine
   struct chain_adapter
   {
     // TODO sha3 opcode
-    std::function< std::string(std::vector<word>) > sha3;
+    std::function< big_word(std::vector<word>) > sha3;
 
     std::function< big_word(big_word) > get_balance;
 
@@ -242,17 +337,17 @@ namespace machine
     std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, big_word, std::vector<word>) > contract_call;
 
     // TODO call a method from another contract(?) -- callcode opcode -- address, energy, value, args
-    std::function< std::vector<word>(std::string, uint64_t, big_word, std::vector<word>) > contract_callcode;
+    std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, big_word, std::vector<word>) > contract_callcode;
 
     // TODO call a method from another contract using the storage of the current
     // opcode -- delegatecall opcode -- address, energy, args
-    std::function< std::vector<word>(std::string, uint64_t, std::vector<word>) > contract_delegatecall;
+    std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, std::vector<word>) > contract_delegatecall;
 
     // TODO call a method from another contract with state changes disallowed -- staticcall opcode -- address, energy, args
     std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, std::vector<word>) > contract_staticcall;
 
     // TODO creates a child contract -- create2 opcode
-    std::function< big_word(std::vector<word>, big_word, std::string) > contract_create2;
+    std::function< big_word(std::vector<word>, big_word, big_word) > contract_create2;
 
     // TODO revert opcode
     std::function< bool(std::vector<word>) > revert;
@@ -284,6 +379,11 @@ namespace machine
     std::vector<word> code;
     message msg;
     std::map<size_t, word> memory;
+    // TODO writing to memory requires type information to be added to memory_type_data
+    // 0 for string and bytes / tightly packed
+    // 1 for array / sparsely packed data
+    // XXX Refers to non-standard packed mode in solidity ABI spec
+    std::map<size_t, uint8_t> memory_type_data;
     std::map<big_word, big_word> storage;
     std::vector<word> return_value;
     std::vector<word> ext_return_data;
@@ -318,5 +418,4 @@ namespace machine
 
     void emit_log(const log_object& o);
   };
-
 }

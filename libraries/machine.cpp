@@ -490,22 +490,34 @@ namespace machine
         va = pop_word(); // offset
         vb = pop_word(); // length
 
-        // TODO handle case where length of memory segment is 0, stack needs a 0 pushed
+        if (vb == 0) {
+          push_word(0);
+        } else {
+          for (size_t i = static_cast<size_t>(va); i < static_cast<size_t>(va) + static_cast<size_t>(vb); i++) {
+            std::map<size_t,word>::iterator it;
+            it = memory.find(i);
+            if (it != memory.end()) {
+              if ( memory_type_data.at(i) == 1 ) {
+                for (size_t i = 0; i < 31; i++) {
+                  retval.push_back( word(0) );
+                }
+              }
+              retval.push_back( word(it->second) );
+            }
+            else {
+              if ( memory_type_data.at(i) == 1 ) {
+                for (size_t i = 0; i < 32; i++) {
+                  retval.push_back( word(0) );
+                }
+              } else {
+                retval.push_back( word(0) );
+              }
+            }
+          }
 
-        for (size_t i = static_cast<size_t>(va); i < static_cast<size_t>(va) + static_cast<size_t>(vb); i++) {
-          std::map<size_t,word>::iterator it;
-          it = memory.find(i);
-          if (it != memory.end()) {
-            retval.push_back(it->second);
-          }
-          else {
-            retval.push_back(word(0));
-          }
+          vc = adapter.sha3( retval );
+          push_word( vc ); // hash
         }
-
-        sstream << std::hex << adapter.sha3( retval );
-        sstream >> vc;
-        push_word( vc ); // hash
 
         break;
       case address_opcode:
@@ -590,8 +602,10 @@ namespace machine
           break;
         }
 
-        for (size_t i = 0; i < length; ++i)
+        for (size_t i = 0; i < length; ++i) {
           memory[dest_offset + i] = msg.input_data[offset + i];
+          memory_type_data[dest_offset + i] = 0;
+        }
 
         break;
       case codesize_opcode:
@@ -605,8 +619,10 @@ namespace machine
         offset = static_cast<size_t>( pop_word() );
         length = static_cast<size_t>( pop_word() );
 
-        for (size_t i = 0; i < length; ++i)
+        for (size_t i = 0; i < length; ++i) {
           memory[dest_offset + i] = code[offset + i];
+          memory_type_data[dest_offset + i] = 1;
+        }
 
         break;
       case energyprice_opcode:
@@ -633,8 +649,10 @@ namespace machine
           break;
         }
 
-        for (size_t i = 0; i < length; ++i)
+        for (size_t i = 0; i < length; ++i) {
           memory[dest_offset + i] = ext_contract_code[offset + i];
+          memory_type_data[dest_offset + i] = 1;
+        }
 
         break;
       case returndatasize_opcode:
@@ -750,39 +768,10 @@ namespace machine
         logger << "memory before: " << inspect(memory) << std::endl;
 
         vec1 = from_big_word(vb);
-
-        memory[static_cast<size_t>(va) + 0]  = vec1[31];
-        memory[static_cast<size_t>(va) + 1]  = vec1[30];
-        memory[static_cast<size_t>(va) + 2]  = vec1[29];
-        memory[static_cast<size_t>(va) + 3]  = vec1[28];
-        memory[static_cast<size_t>(va) + 4]  = vec1[27];
-        memory[static_cast<size_t>(va) + 5]  = vec1[26];
-        memory[static_cast<size_t>(va) + 6]  = vec1[25];
-        memory[static_cast<size_t>(va) + 7]  = vec1[24];
-        memory[static_cast<size_t>(va) + 8]  = vec1[23];
-        memory[static_cast<size_t>(va) + 9]  = vec1[22];
-        memory[static_cast<size_t>(va) + 10] = vec1[21];
-        memory[static_cast<size_t>(va) + 11] = vec1[20];
-        memory[static_cast<size_t>(va) + 12] = vec1[19];
-        memory[static_cast<size_t>(va) + 13] = vec1[18];
-        memory[static_cast<size_t>(va) + 14] = vec1[17];
-        memory[static_cast<size_t>(va) + 15] = vec1[16];
-        memory[static_cast<size_t>(va) + 16] = vec1[15];
-        memory[static_cast<size_t>(va) + 17] = vec1[14];
-        memory[static_cast<size_t>(va) + 18] = vec1[13];
-        memory[static_cast<size_t>(va) + 19] = vec1[12];
-        memory[static_cast<size_t>(va) + 20] = vec1[11];
-        memory[static_cast<size_t>(va) + 21] = vec1[10];
-        memory[static_cast<size_t>(va) + 22] = vec1[9];
-        memory[static_cast<size_t>(va) + 23] = vec1[8];
-        memory[static_cast<size_t>(va) + 24] = vec1[7];
-        memory[static_cast<size_t>(va) + 25] = vec1[6];
-        memory[static_cast<size_t>(va) + 26] = vec1[5];
-        memory[static_cast<size_t>(va) + 27] = vec1[4];
-        memory[static_cast<size_t>(va) + 28] = vec1[3];
-        memory[static_cast<size_t>(va) + 29] = vec1[2];
-        memory[static_cast<size_t>(va) + 30] = vec1[1];
-        memory[static_cast<size_t>(va) + 31] = vec1[0];
+        for (size_t i = 0; i < 32; i++) {
+          memory[static_cast<size_t>(va) + i] = vec1[31 - i];
+          memory_type_data[static_cast<size_t>(va) + i] = 0;
+        }
         logger << "memory after: " << inspect(memory) << std::endl;
         break;
       case mstore8_opcode:
@@ -790,8 +779,8 @@ namespace machine
         va = pop_word(); // offset
         vb = pop_word(); // value
         logger << "memory before: " << inspect(memory) << std::endl;
-        // TODO: Verify order
         memory[static_cast<size_t>(va)] = get_byte(vb, 0); // TODO verify byte of big_word vb
+        memory_type_data[static_cast<size_t>(va)] = 0;
         logger << "memory after: " << inspect(memory) << std::endl;
         break;
       case sload_opcode:
@@ -2744,47 +2733,47 @@ namespace machine
 
         contract_call_return = adapter.contract_call(vb, static_cast<uint64_t>(va), vc, contract_args);
 
+        if (contract_call_return.second.size() > 0) {
+          ext_return_data = contract_call_return.second;
+
+          for (size_t i = 0; i < static_cast<size_t>(vf); i++)
+            memory[static_cast<size_t>(ve) + i] = contract_call_return.second[i];
+        }
+
         push_word(big_word(contract_call_return.first));
         break;
       case callcode_opcode:
         logger << "op callcode" << std::endl;
         va = pop_word(); // energy
 
-        sv = stack.front(); // addr
-        ss = boost::get<std::string>(&sv);
-        if (ss)
-        {
-          stack.pop_front();
-          vb = pop_word(); // value
-          vc = pop_word(); // argsOffset
-          vd = pop_word(); // argsLength
-          ve = pop_word(); // retOffset
-          vf = pop_word(); // retLength
+        vb = pop_word(); // address
+        vc = pop_word(); // value
+        vd = pop_word(); // argsOffset
+        ve = pop_word(); // argsLength
+        vf = pop_word(); // retOffset
+        vg = pop_word(); // retLength
 
-          for (size_t i = static_cast<size_t>(vc); i < static_cast<size_t>(vd); i++) {
-            std::map<size_t,word>::iterator it;
-            it = memory.find(i);
-            if (it != memory.end()) {
-              contract_args.push_back(it->second);
-            }
-            else {
-              contract_args.push_back(word(0));
-            }
+        for (size_t i = static_cast<size_t>(vd); i < static_cast<size_t>(vd) + static_cast<size_t>(ve); i++) {
+          std::map<size_t,word>::iterator it;
+          it = memory.find(i);
+          if (it != memory.end()) {
+            contract_args.push_back(it->second);
           }
+          else {
+            contract_args.push_back(word(0));
+          }
+        }
 
-          std::vector<word> contract_callcode_return = adapter.contract_callcode(*ss, static_cast<uint64_t>(va), vb, contract_args);
+        contract_call_return = adapter.contract_callcode(vb, static_cast<uint64_t>(va), vc, contract_args);
+
+        if (contract_call_return.second.size() > 0) {
+          ext_return_data = contract_call_return.second;
 
           for (size_t i = 0; i < static_cast<size_t>(vf); i++)
-            memory[static_cast<size_t>(ve) + i] = contract_callcode_return[i];
+            memory[static_cast<size_t>(ve) + i] = contract_call_return.second[i];
+        }
 
-          // TODO revise stack return value?
-          push_word("Success"); // success
-        }
-        else {
-          push_word("Failure"); // success
-          state = machine_state::error;
-          error_message.emplace("Callcode operation type error");
-        }
+        push_word(big_word(contract_call_return.first));
         break;
       case return_opcode:
         logger << "op return" << std::endl;
@@ -2822,71 +2811,65 @@ namespace machine
       case delegatecall_opcode:
         logger << "op delegatecall" << std::endl;
         va = pop_word(); // energy
+        vb = pop_word(); // addr
+        vc = pop_word(); // argsOffset
+        vd = pop_word(); // argsLength
+        ve = pop_word(); // retOffset
+        vf = pop_word(); // retLength
 
-        sv = stack.front(); // addr
-        ss = boost::get<std::string>(&sv);
-        if (ss)
-        {
-          stack.pop_front();
-          vb = pop_word(); // argsOffset
-          vc = pop_word(); // argsLength
-          vd = pop_word(); // retOffset
-          ve = pop_word(); // retLength
-
-          for (size_t i = static_cast<size_t>(va); i < static_cast<size_t>(vb); i++) {
-            std::map<size_t,word>::iterator it;
-            it = memory.find(i);
-            if (it != memory.end()) {
-              contract_args.push_back(it->second);
-            }
-            else {
-              contract_args.push_back(word(0));
-            }
+        for (size_t i = static_cast<size_t>(vc); i < static_cast<size_t>(vc) + static_cast<size_t>(vd); i++) {
+          std::map<size_t,word>::iterator it;
+          it = memory.find(i);
+          if (it != memory.end()) {
+            contract_args.push_back(it->second);
           }
-
-          std::vector<word> contract_delegatecall_return = adapter.contract_delegatecall(*ss, static_cast<uint64_t>(va), contract_args);
-
-          for (size_t i = 0; i < static_cast<size_t>(ve); i++)
-            memory[static_cast<size_t>(vd) + i] = contract_delegatecall_return[i];
-
-          // TODO revise stack return value?
-          push_word("Success"); // success
+          else {
+            contract_args.push_back(word(0));
+          }
         }
-        else {
-          push_word("Failure"); // success
-          state = machine_state::error;
-          error_message.emplace("Delegatecall operation type error");
+
+        contract_call_return = adapter.contract_delegatecall(vb, static_cast<uint64_t>(va), contract_args);
+
+        if (contract_call_return.second.size() > 0) {
+          ext_return_data = contract_call_return.second;
+
+          for (size_t i = 0; i < static_cast<size_t>(vf); i++)
+            memory[static_cast<size_t>(ve) + i] = contract_call_return.second[i];
         }
+
+        push_word(contract_call_return.first);
         break;
       case create2_opcode:
         logger << "op create2" << std::endl;
         va = pop_word(); // value
         vb = pop_word(); // offset
         vc = pop_word(); // length
+        vd = pop_word(); // salt
 
-        sv = stack.front(); // salt
-        ss = boost::get<std::string>(&sv);
-        if (ss)
-        {
-          std::vector<word> args;
-
-          for (size_t i = static_cast<size_t>(vb); i < static_cast<size_t>(vc); i++) {
-            std::map<size_t,word>::iterator it;
-            it = memory.find(i);
-            if (it != memory.end()) {
-              args.push_back(it->second);
+        for (size_t i = static_cast<size_t>(vb); i < static_cast<size_t>(vb) + static_cast<size_t>(vc); i++) {
+          std::map<size_t, word>::iterator it;
+          it = memory.find(i);
+          if (it != memory.end()) {
+            if ( memory_type_data.at(i) == 1 ) {
+              for (size_t i = 0; i < 31; i++) {
+                contract_args.push_back( word(0) );
+              }
             }
-            else {
-              args.push_back(word(0));
+            contract_args.push_back( word(it->second) );
+          }
+          else {
+            if ( memory_type_data.at(i) == 1 ) {
+              for (size_t i = 0; i < 32; i++) {
+                contract_args.push_back( word(0) );
+              }
+            } else {
+              contract_args.push_back( word(0) );
             }
           }
+        }
 
-          push_word( adapter.contract_create2( args, va, *ss ) );
-        }
-        else {
-          state = machine_state::error;
-          error_message.emplace("Create2 operation type error");
-        }
+        push_word( adapter.contract_create2( contract_args, va, vd ) );
+
         break;
       case staticcall_opcode:
         logger << "op staticcall" << std::endl;
@@ -3021,9 +3004,13 @@ namespace machine
         }
         s << "\",";
 
-        word current_instruction = code[pc];
-        opcode op = (opcode)current_instruction;
-        s << "\"opcode\":" << std::hex << op << ",";
+        if (code.size() != 0) {
+          word current_instruction = code[pc];
+          opcode op = (opcode)current_instruction;
+          s << "\"opcode\":" << std::hex << op << ",";
+        } else {
+          s << "\"opcode\":null,";
+        }
 
         if (error_message == boost::none)
           s << "\"exceptionError\":" << "null";
