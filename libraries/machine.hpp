@@ -15,14 +15,13 @@ namespace machine
   typedef uint8_t word;
   typedef boost::multiprecision::uint256_t big_word;
   typedef boost::multiprecision::int256_t signed_big_word;
-  typedef boost::variant<big_word, std::string> stack_variant;
 
   struct typed_word
   {
     word value;
     bool is_sparse;
 
-    typed_word(const word _value, const bool _is_sparse = 0) : value(value), is_sparse(_is_sparse) {}
+    typed_word(const word _value = 0, const bool _is_sparse = 0) : value(value), is_sparse(_is_sparse) {}
 
     bool operator==(const typed_word &other) const {
       return this->value == other.value;
@@ -40,11 +39,67 @@ namespace machine
       return this->value > other.value;
     }
 
+    typed_word operator+(const typed_word &rhs) const {
+      return typed_word(this->value + rhs.value);
+    }
+
+    typed_word operator-(const typed_word &rhs) const {
+      return typed_word(this->value - rhs.value);
+    }
+
+    typed_word operator*(const typed_word &rhs) const {
+      return typed_word(this->value * rhs.value);
+    }
+
+    typed_word operator/(const typed_word &rhs) const {
+      return typed_word(this->value / rhs.value);
+    }
+
+    typed_word operator%(const typed_word &rhs) const {
+      return typed_word(this->value % rhs.value);
+    }
+
     typed_word operator=(const typed_word &rhs) {
       if (this == &rhs)
         return *this;
       this->value = rhs.value;
       return *this;
+    }
+
+    typed_word operator+=(const typed_word &rhs) {
+      this->value = this->value+ rhs.value;
+      return *this;
+    }
+
+    typed_word operator-=(const typed_word &rhs) {
+      this->value = this->value - rhs.value;
+      return *this;
+    }
+
+    typed_word operator*=(const typed_word &rhs) {
+      this->value = this->value * rhs.value;
+      return *this;
+    }
+
+    typed_word operator/=(const typed_word &rhs) {
+      this->value = this->value / rhs.value;
+      return *this;
+    }
+
+    typed_word operator&(const typed_word &other) const {
+      return typed_word(this->value & other.value);
+    }
+
+    typed_word operator|(const typed_word &other) const {
+      return typed_word(this->value | other.value);
+    }
+
+    typed_word operator^(const typed_word &other) const {
+      return typed_word(this->value ^ other.value);
+    }
+
+    typed_word operator~() const {
+      return typed_word(~this->value);
     }
   };
 
@@ -53,7 +108,7 @@ namespace machine
     big_word value;
     bool is_sparse;
 
-    typed_big_word(const big_word _value, const bool _is_sparse = 0) : value(value), is_sparse(_is_sparse) {}
+    typed_big_word(const big_word _value = 0, const bool _is_sparse = 0) : value(value), is_sparse(_is_sparse) {}
 
     bool operator==(const typed_big_word &other) const {
       return this->value == other.value;
@@ -71,11 +126,67 @@ namespace machine
       return this->value > other.value;
     }
 
+    typed_big_word operator+(const typed_big_word &rhs) const {
+      return typed_big_word(this->value + rhs.value);
+    }
+
+    typed_big_word operator-(const typed_big_word &rhs) const {
+      return typed_big_word(this->value - rhs.value);
+    }
+
+    typed_big_word operator*(const typed_big_word &rhs) const {
+      return typed_big_word(this->value * rhs.value);
+    }
+
+    typed_big_word operator/(const typed_big_word &rhs) const {
+      return typed_big_word(this->value / rhs.value);
+    }
+
+    typed_big_word operator%(const typed_big_word &rhs) const {
+      return typed_big_word(this->value % rhs.value);
+    }
+
     typed_big_word operator=(const typed_big_word &rhs) {
       if (this == &rhs)
         return *this;
       this->value = rhs.value;
       return *this;
+    }
+
+    typed_big_word operator+=(const typed_big_word &rhs) {
+      this->value = this->value + rhs.value;
+      return *this;
+    }
+
+    typed_big_word operator-=(const typed_big_word &rhs) {
+      this->value = this->value - rhs.value;
+      return *this;
+    }
+
+    typed_big_word operator*=(const typed_big_word &rhs) {
+      this->value = this->value * rhs.value;
+      return *this;
+    }
+
+    typed_big_word operator/=(const typed_big_word &rhs) {
+      this->value = this->value / rhs.value;
+      return *this;
+    }
+
+    typed_big_word operator&(const typed_big_word &other) const {
+      return typed_big_word(this->value & other.value);
+    }
+
+    typed_big_word operator|(const typed_big_word &other) const {
+      return typed_big_word(this->value | other.value);
+    }
+
+    typed_big_word operator^(const typed_big_word &other) const {
+      return typed_big_word(this->value ^ other.value);
+    }
+
+    typed_big_word operator~() const {
+      return typed_big_word(~this->value);
     }
   };
 
@@ -84,7 +195,7 @@ namespace machine
     signed_big_word value;
     bool is_sparse;
 
-    typed_signed_big_word(const signed_big_word _value, const bool _is_sparse = 0) : value(value), is_sparse(_is_sparse) {}
+    typed_signed_big_word(const signed_big_word _value = 0, const bool _is_sparse = 0) : value(value), is_sparse(_is_sparse) {}
 
     bool operator==(const typed_signed_big_word &other) const {
       return this->value == other.value;
@@ -102,15 +213,69 @@ namespace machine
       return this->value > other.value;
     }
 
+    typed_signed_big_word operator+(const typed_signed_big_word &rhs) const {
+      return typed_signed_big_word(this->value + rhs.value);
+    }
+
+    typed_signed_big_word operator-(const typed_signed_big_word &rhs) const {
+      return typed_signed_big_word(this->value - rhs.value);
+    }
+
+    typed_signed_big_word operator*(const typed_signed_big_word &rhs) const {
+      return typed_signed_big_word(this->value * rhs.value);
+    }
+
+    typed_signed_big_word operator/(const typed_signed_big_word &rhs) const {
+      return typed_signed_big_word(this->value / rhs.value);
+    }
+
+    typed_signed_big_word operator%(const typed_signed_big_word &rhs) const {
+      return typed_signed_big_word(this->value % rhs.value);
+    }
+
     typed_signed_big_word operator=(const typed_signed_big_word &rhs) {
       if (this == &rhs)
         return *this;
       this->value = rhs.value;
       return *this;
     }
-  };
 
-  typedef boost::variant<typed_big_word, std::string> typed_stack_variant;
+    typed_signed_big_word operator+=(const typed_signed_big_word &rhs) {
+      this->value = this->value + rhs.value;
+      return *this;
+    }
+
+    typed_signed_big_word operator-=(const typed_signed_big_word &rhs) {
+      this->value = this->value - rhs.value;
+      return *this;
+    }
+
+    typed_signed_big_word operator*=(const typed_signed_big_word &rhs) {
+      this->value = this->value * rhs.value;
+      return *this;
+    }
+
+    typed_signed_big_word operator/=(const typed_signed_big_word &rhs) {
+      this->value = this->value / rhs.value;
+      return *this;
+    }
+
+    typed_signed_big_word operator&(const typed_signed_big_word &other) const {
+      return typed_signed_big_word(this->value & other.value);
+    }
+
+    typed_signed_big_word operator|(const typed_signed_big_word &other) const {
+      return typed_signed_big_word(this->value | other.value);
+    }
+
+    typed_signed_big_word operator^(const typed_signed_big_word &other) const {
+      return typed_signed_big_word(this->value ^ other.value);
+    }
+
+    typed_signed_big_word operator~() const {
+      return typed_signed_big_word(~this->value);
+    }
+  };
 
   enum opcode
   {
@@ -282,8 +447,8 @@ namespace machine
 
   struct log_object
   {
-    std::vector<uint8_t> data;
-    std::vector<big_word> topics;
+    std::vector<typed_word> data;
+    std::vector<typed_big_word> topics;
   };
 
   struct message
@@ -292,10 +457,10 @@ namespace machine
     int32_t depth;
     int64_t energy;
 
-    big_word sender;
-    big_word destination;
+    typed_big_word sender;
+    typed_big_word destination;
 
-    big_word value;
+    typed_big_word value;
     size_t input_size;
     std::vector<word> input_data = {};
     size_t code_size;
@@ -310,62 +475,62 @@ namespace machine
     uint64_t block_difficulty;
     uint64_t block_energylimit;
     int64_t tx_energyprice;
-    std::string tx_origin;
-    std::string block_coinbase;
+    big_word tx_origin;
+    big_word block_coinbase;
   };
 
   struct chain_adapter
   {
     // TODO sha3 opcode
-    std::function< big_word(std::vector<word>) > sha3;
+    std::function< typed_big_word(std::vector<word>) > sha3;
 
-    std::function< big_word(big_word) > get_balance;
+    std::function< typed_big_word(typed_big_word) > get_balance;
 
     // TODO for hashing address -- extcodehash opcode
-    std::function< std::string(std::string) > get_code_hash;
+    std::function< typed_big_word(typed_big_word) > get_code_hash;
 
     // TODO for hashing block number -- blockhash opcode
-    std::function< machine::big_word(uint64_t) > get_block_hash;
+    std::function< machine::typed_big_word(uint64_t) > get_block_hash;
 
     // TODO get contract bytecode at address
-    std::function< std::vector<word>(big_word) > get_code_at_addr;
+    std::function< std::vector<word>(typed_big_word) > get_code_at_addr;
 
     // TODO creates a child contract -- create opcode
-    std::function< big_word(std::vector<word>, big_word) > contract_create;
+    std::function< typed_big_word(std::vector<word>, typed_big_word) > contract_create;
 
     // TODO call a method from another contract -- call opcode -- address, energy, value, args
-    std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, big_word, std::vector<word>) > contract_call;
+    std::function< std::pair< word, std::vector<word> >(typed_big_word, uint64_t, typed_big_word, std::vector<word>) > contract_call;
 
     // TODO call a method from another contract(?) -- callcode opcode -- address, energy, value, args
-    std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, big_word, std::vector<word>) > contract_callcode;
+    std::function< std::pair< word, std::vector<word> >(typed_big_word, uint64_t, typed_big_word, std::vector<word>) > contract_callcode;
 
     // TODO call a method from another contract using the storage of the current
     // opcode -- delegatecall opcode -- address, energy, args
-    std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, std::vector<word>) > contract_delegatecall;
+    std::function< std::pair< word, std::vector<word> >(typed_big_word, uint64_t, std::vector<word>) > contract_delegatecall;
 
     // TODO call a method from another contract with state changes disallowed -- staticcall opcode -- address, energy, args
-    std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, std::vector<word>) > contract_staticcall;
+    std::function< std::pair< word, std::vector<word> >(typed_big_word, uint64_t, std::vector<word>) > contract_staticcall;
 
     // TODO creates a child contract -- create2 opcode
-    std::function< big_word(std::vector<word>, big_word, big_word) > contract_create2;
+    std::function< typed_big_word(std::vector<word>, typed_big_word, typed_big_word) > contract_create2;
 
     // TODO revert opcode
     std::function< bool(std::vector<word>) > revert;
 
     // TODO load opcode -- takes key as a parameter and returns value
-    std::function< big_word(big_word) > get_storage;
+    std::function< typed_big_word(typed_big_word) > get_storage;
 
     // TODO sstore opcode -- destination, key, value
-    std::function< void(big_word, big_word) > set_storage;
+    std::function< void(typed_big_word, typed_big_word) > set_storage;
 
     // TODO return opcode
     std::function< std::vector<word>(std::vector<word>) > contract_return;
 
     // TODO selfdestruct opcode
-    std::function< bool(std::string) > self_destruct;
+    std::function< bool(typed_big_word) > self_destruct;
 
     // TODO used to initialize message data
-    std::function< std::vector<word>(std::string) > get_input_data;
+    std::function< std::vector<word>(typed_big_word) > get_input_data;
 
     std::function< void(const log_object&) > emit_log;
   };
@@ -373,28 +538,27 @@ namespace machine
   class machine
   {
     size_t pc = 0;
-    std::deque<stack_variant> stack;
+    std::deque<typed_big_word> stack;
     machine_state state = machine_state::running;
     context ctx;
     std::vector<word> code;
     message msg;
-    std::map<size_t, word> memory;
+    std::map<size_t, typed_word> memory;
     // TODO writing to memory requires type information to be added to memory_type_data
     // 0 for string and bytes / tightly packed
     // 1 for array / sparsely packed data
     // XXX Refers to non-standard packed mode in solidity ABI spec
-    std::map<size_t, uint8_t> memory_type_data;
-    std::map<big_word, big_word> storage;
+    std::map<typed_big_word, typed_big_word> storage;
     std::vector<word> return_value;
     std::vector<word> ext_return_data;
     boost::optional<std::string> error_message;
     std::stringstream logger;
     chain_adapter adapter;
-    big_word energy_left;
+    typed_big_word energy_left;
     opcode current_opcode = stop_opcode;
 
-    void push_word(stack_variant v);
-    big_word pop_word();
+    void push_word(typed_big_word v);
+    typed_big_word pop_word();
     void log(std::string output);
 
     public:
@@ -403,8 +567,7 @@ namespace machine
     {
     }
 
-    big_word peek_word();
-    void push_string(std::string s);
+    typed_big_word peek_word();
     void print_stack();
     size_t stack_length();
     void step();
