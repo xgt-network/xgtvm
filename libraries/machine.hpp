@@ -447,8 +447,8 @@ namespace machine
 
   struct log_object
   {
-    std::vector<typed_word> data;
-    std::vector<typed_big_word> topics;
+    std::vector<word> data;
+    std::vector<big_word> topics;
   };
 
   struct message
@@ -457,10 +457,10 @@ namespace machine
     int32_t depth;
     int64_t energy;
 
-    typed_big_word sender;
-    typed_big_word destination;
+    big_word sender;
+    big_word destination;
 
-    typed_big_word value;
+    uint64_t value;
     size_t input_size;
     std::vector<word> input_data = {};
     size_t code_size;
@@ -482,55 +482,52 @@ namespace machine
   struct chain_adapter
   {
     // TODO sha3 opcode
-    std::function< typed_big_word(std::vector<word>) > sha3;
+    std::function< big_word(std::vector<word>) > sha3;
 
-    std::function< typed_big_word(typed_big_word) > get_balance;
+    std::function< big_word(big_word) > get_balance;
 
     // TODO for hashing address -- extcodehash opcode
-    std::function< typed_big_word(typed_big_word) > get_code_hash;
+    std::function< big_word(big_word) > get_code_hash;
 
     // TODO for hashing block number -- blockhash opcode
-    std::function< machine::typed_big_word(uint64_t) > get_block_hash;
+    std::function< machine::big_word(uint64_t) > get_block_hash;
 
     // TODO get contract bytecode at address
-    std::function< std::vector<word>(typed_big_word) > get_code_at_addr;
+    std::function< std::vector<word>(big_word) > get_code_at_addr;
 
     // TODO creates a child contract -- create opcode
-    std::function< typed_big_word(std::vector<word>, typed_big_word) > contract_create;
+    std::function< big_word(std::vector<word>, big_word) > contract_create;
 
     // TODO call a method from another contract -- call opcode -- address, energy, value, args
-    std::function< std::pair< word, std::vector<word> >(typed_big_word, uint64_t, typed_big_word, std::vector<word>) > contract_call;
+    std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, big_word, std::vector<word>) > contract_call;
 
     // TODO call a method from another contract(?) -- callcode opcode -- address, energy, value, args
-    std::function< std::pair< word, std::vector<word> >(typed_big_word, uint64_t, typed_big_word, std::vector<word>) > contract_callcode;
+    std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, big_word, std::vector<word>) > contract_callcode;
 
     // TODO call a method from another contract using the storage of the current
     // opcode -- delegatecall opcode -- address, energy, args
-    std::function< std::pair< word, std::vector<word> >(typed_big_word, uint64_t, std::vector<word>) > contract_delegatecall;
+    std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, std::vector<word>) > contract_delegatecall;
 
     // TODO call a method from another contract with state changes disallowed -- staticcall opcode -- address, energy, args
-    std::function< std::pair< word, std::vector<word> >(typed_big_word, uint64_t, std::vector<word>) > contract_staticcall;
+    std::function< std::pair< word, std::vector<word> >(big_word, uint64_t, std::vector<word>) > contract_staticcall;
 
     // TODO creates a child contract -- create2 opcode
-    std::function< typed_big_word(std::vector<word>, typed_big_word, typed_big_word) > contract_create2;
+    std::function< big_word(std::vector<word>, big_word, big_word) > contract_create2;
 
     // TODO revert opcode
     std::function< bool(std::vector<word>) > revert;
 
     // TODO load opcode -- takes key as a parameter and returns value
-    std::function< typed_big_word(typed_big_word) > get_storage;
+    std::function< big_word(big_word) > get_storage;
 
     // TODO sstore opcode -- destination, key, value
-    std::function< void(typed_big_word, typed_big_word) > set_storage;
+    std::function< void(big_word, big_word) > set_storage;
 
     // TODO return opcode
     std::function< std::vector<word>(std::vector<word>) > contract_return;
 
     // TODO selfdestruct opcode
-    std::function< bool(typed_big_word) > self_destruct;
-
-    // TODO used to initialize message data
-    std::function< std::vector<word>(typed_big_word) > get_input_data;
+    std::function< bool(big_word) > self_destruct;
 
     std::function< void(const log_object&) > emit_log;
   };

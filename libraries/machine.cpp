@@ -253,7 +253,6 @@ namespace machine
     std::vector<word> ext_contract_code;
     std::pair< word, std::vector<word> > contract_call_return;
     std::vector<typed_word>::const_iterator first, last;
-    std::string* ss;
     std::stringstream sstream;
     switch (op)
     {
@@ -505,12 +504,12 @@ namespace machine
         break;
       case address_opcode:
         logger << "op address" << std::endl;
-        push_word( msg.destination );
+        push_word( typed_big_word(msg.destination) );
         break;
       case balance_opcode:
         logger << "op balance" << std::endl;
         va = pop_word();
-        push_word( adapter.get_balance(va) );
+        push_word( typed_big_word( adapter.get_balance(va.value) ) );
         break;
       case origin_opcode:
         logger << "op origin" << std::endl;
@@ -522,7 +521,7 @@ namespace machine
         break;
       case callvalue_opcode:
         logger << "op callvalue" << std::endl;
-        push_word( msg.value );
+        push_word( typed_big_word(msg.value) );
         break;
       case calldataload_opcode:
         logger << "op calldataload" << std::endl;
@@ -613,13 +612,13 @@ namespace machine
       case extcodesize_opcode:
         logger << "op extcodesize" << std::endl;
         va = pop_word(); // Address
-        ext_contract_code = adapter.get_code_at_addr(va);
+        ext_contract_code = adapter.get_code_at_addr(va.value);
         push_word( typed_big_word( sizeof(ext_contract_code) / sizeof(ext_contract_code[0]) ) );
         break;
       case extcodecopy_opcode:
         logger << "op extcodecopy" << std::endl;
         va = pop_word(); // address
-        ext_contract_code = adapter.get_code_at_addr(va);
+        ext_contract_code = adapter.get_code_at_addr(va.value);
         code_size = sizeof(ext_contract_code) / sizeof(ext_contract_code[0]);
         dest_offset = static_cast<size_t>( pop_word().value );
         offset = static_cast<size_t>( pop_word().value );
@@ -657,7 +656,7 @@ namespace machine
       case extcodehash_opcode:
         logger << "op extcodehash" << std::endl;
         va = pop_word(); // addr
-        push_word( adapter.get_code_hash(va) );
+        push_word( typed_big_word( adapter.get_code_hash(va.value) ) );
         break;
       case blockhash_opcode:
         logger << "op blockhash" << std::endl;
@@ -686,7 +685,7 @@ namespace machine
         break;
       case selfbalance_opcode:
         logger << "op selfbalance" << std::endl;
-        push_word( adapter.get_balance(msg.destination) );
+        push_word( adapter.get_balance( msg.destination ) );
         break;
       case pop_opcode:
         logger << "op pop" << std::endl;
@@ -754,7 +753,7 @@ namespace machine
       case sload_opcode:
         logger << "op sload" << std::endl;
         va = pop_word();
-        vb = adapter.get_storage(va);
+        vb = typed_big_word( adapter.get_storage(va.value) );
 
         push_word(vb);
         break;
@@ -763,7 +762,7 @@ namespace machine
         va = pop_word();
         vb = pop_word();
 
-        adapter.set_storage(va, vb);
+        adapter.set_storage(va.value, vb.value);
         break;
       case jump_opcode:
         logger << "op jump" << std::endl;
@@ -2473,10 +2472,10 @@ namespace machine
           vb = pop_word(); // length
           offset = static_cast<size_t>(va.value);
           length = static_cast<size_t>(vb.value);
-          std::vector<typed_word> slice;
+          std::vector<word> slice;
           slice.resize(length);
           for (size_t i = 0; i < length; i++) {
-            slice[i] = memory[offset + i];
+            slice[i] = memory[offset + i].value;
           }
           const log_object o = { slice, {} };
           this->emit_log(o);
@@ -2489,15 +2488,15 @@ namespace machine
           vb = pop_word(); // length
           offset = static_cast<size_t>(va.value);
           length = static_cast<size_t>(vb.value);
-          std::vector<typed_word> slice;
+          std::vector<word> slice;
           slice.resize(length);
           for (size_t i = 0; i < length; i++) {
-            slice[i] = memory[offset + i];
+            slice[i] = memory[offset + i].value;
           }
 
-          std::vector<typed_big_word> topics;
+          std::vector<big_word> topics;
 
-          topics.push_back( pop_word() );
+          topics.push_back( pop_word().value );
 
           const log_object o = { slice, topics };
           this->emit_log(o);
@@ -2510,16 +2509,16 @@ namespace machine
           vb = pop_word(); // length
           offset = static_cast<size_t>(va.value);
           length = static_cast<size_t>(vb.value);
-          std::vector<typed_word> slice;
+          std::vector<word> slice;
           slice.resize(length);
           for (size_t i = 0; i < length; i++) {
-            slice[i] = memory[offset + i];
+            slice[i] = memory[offset + i].value;
           }
 
-          std::vector<typed_big_word> topics;
+          std::vector<big_word> topics;
 
           for (size_t i = 0; i < 2; i++) {
-            topics.push_back( pop_word() );
+            topics.push_back( pop_word().value );
           }
 
           const log_object o = { slice, topics };
@@ -2533,16 +2532,16 @@ namespace machine
           vb = pop_word(); // length
           offset = static_cast<size_t>(va.value);
           length = static_cast<size_t>(vb.value);
-          std::vector<typed_word> slice;
+          std::vector<word> slice;
           slice.resize(length);
           for (size_t i = 0; i < length; i++) {
-            slice[i] = memory[offset + i];
+            slice[i] = memory[offset + i].value;
           }
 
-          std::vector<typed_big_word> topics;
+          std::vector<big_word> topics;
 
           for (size_t i = 0; i < 3; i++) {
-            topics.push_back( pop_word() );
+            topics.push_back( pop_word().value );
           }
 
           const log_object o = { slice, topics };
@@ -2556,16 +2555,16 @@ namespace machine
           vb = pop_word(); // length
           offset = static_cast<size_t>(va.value);
           length = static_cast<size_t>(vb.value);
-          std::vector<typed_word> slice;
+          std::vector<word> slice;
           slice.resize(length);
           for (size_t i = 0; i < length; i++) {
-            slice[i] = memory[offset + i];
+            slice[i] = memory[offset + i].value;
           }
 
-          std::vector<typed_big_word> topics;
+          std::vector<big_word> topics;
 
           for (size_t i = 0; i < 4; i++) {
-            topics.push_back( pop_word() );
+            topics.push_back( pop_word().value );
           }
 
           const log_object o = { slice, topics };
@@ -2590,7 +2589,7 @@ namespace machine
           }
         }
 
-        push_word( adapter.contract_create( retval, va ) ); // addr
+        push_word( typed_big_word( adapter.contract_create( retval, va.value ) ) ); // addr
         break;
       case call_opcode:
         logger << "op call" << std::endl;
@@ -2614,7 +2613,7 @@ namespace machine
           }
         }
 
-        contract_call_return = adapter.contract_call(vb, static_cast<uint64_t>(va.value), vc, contract_args);
+        contract_call_return = adapter.contract_call(vb.value, static_cast<uint64_t>(va.value), vc.value, contract_args);
 
         if (contract_call_return.second.size() > 0) {
           ext_return_data = contract_call_return.second;
@@ -2647,7 +2646,7 @@ namespace machine
           }
         }
 
-        contract_call_return = adapter.contract_callcode(vb, static_cast<uint64_t>(va.value), vc, contract_args);
+        contract_call_return = adapter.contract_callcode(vb.value, static_cast<uint64_t>(va.value), vc.value, contract_args);
 
         if (contract_call_return.second.size() > 0) {
           ext_return_data = contract_call_return.second;
@@ -2711,7 +2710,7 @@ namespace machine
           }
         }
 
-        contract_call_return = adapter.contract_delegatecall(vb, static_cast<uint64_t>(va.value), contract_args);
+        contract_call_return = adapter.contract_delegatecall(vb.value, static_cast<uint64_t>(va.value), contract_args);
 
         if (contract_call_return.second.size() > 0) {
           ext_return_data = contract_call_return.second;
@@ -2751,7 +2750,7 @@ namespace machine
           }
         }
 
-        push_word( adapter.contract_create2( contract_args, va, vd ) );
+        push_word( typed_big_word( adapter.contract_create2( contract_args, va.value, vd.value ) ) );
 
         break;
       case staticcall_opcode:
@@ -2775,7 +2774,7 @@ namespace machine
           }
         }
 
-        contract_call_return = adapter.contract_staticcall(vb, static_cast<uint64_t>(va.value), contract_args);
+        contract_call_return = adapter.contract_staticcall(vb.value, static_cast<uint64_t>(va.value), contract_args);
 
         ext_return_data = contract_call_return.second;
 
@@ -2810,7 +2809,7 @@ namespace machine
       case selfdestruct_opcode:
         logger << "op selfdestruct" << std::endl;
         va = stack.front(); // addr
-        adapter.self_destruct(va);
+        adapter.self_destruct(va.value);
         break;
     }
   }

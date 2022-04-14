@@ -55,67 +55,67 @@ static struct option long_options[] = {
 // chain_adapter is state.host equivalent in evmone
 machine::chain_adapter make_chain_adapter()
 {
-  std::function< machine::typed_big_word(std::vector<machine::word>) > sha3 = [](std::vector<machine::word> memory) -> machine::typed_big_word
+  std::function< machine::big_word(std::vector<machine::word>) > sha3 = [](std::vector<machine::word> memory) -> machine::big_word
   {
     std::cout << "chain_adapter::sha3" << std::endl;
-    return machine::typed_big_word(0);
+    return machine::big_word(0);
   };
 
-  std::function< machine::typed_big_word(machine::typed_big_word) > get_balance = [](machine::typed_big_word address_ripemd160) -> machine::typed_big_word
+  std::function< machine::big_word(machine::big_word) > get_balance = [](machine::big_word address_ripemd160) -> machine::big_word
   {
     std::cout << "chain_adapter::get_balance" << std::endl;
-    return machine::typed_big_word(0);
+    return machine::big_word(0);
   };
 
-  std::function< machine::typed_big_word(machine::typed_big_word) > get_code_hash = [](machine::typed_big_word address) -> machine::typed_big_word
+  std::function< machine::big_word(machine::big_word) > get_code_hash = [](machine::big_word address) -> machine::big_word
   {
     std::cout << "chain_adapter::get_code_hash" << std::endl;
-    return machine::typed_big_word(0);
+    return machine::big_word(0);
   };
 
-  std::function< machine::typed_big_word(uint64_t) > get_block_hash = [](uint64_t block_num) -> machine::typed_big_word
+  std::function< machine::big_word(uint64_t) > get_block_hash = [](uint64_t block_num) -> machine::big_word
   {
     std::cout << "chain_adapter::get_block_hash" << std::endl;
-    return machine::typed_big_word(0);
+    return machine::big_word(0);
   };
 
-  std::function< std::vector<machine::word>(machine::typed_big_word) > get_code_at_addr = [](machine::typed_big_word address) -> std::vector<machine::word>
+  std::function< std::vector<machine::word>(machine::big_word) > get_code_at_addr = [](machine::big_word address) -> std::vector<machine::word>
   {
     std::cout << "chain_adapter::get_code_at_addr" << std::endl;
     return {};
   };
 
-  std::function< machine::typed_big_word(std::vector<machine::word>, machine::typed_big_word) > contract_create = [](std::vector<machine::word> memory, machine::typed_big_word value) -> machine::typed_big_word
+  std::function< machine::big_word(std::vector<machine::word>, machine::big_word) > contract_create = [](std::vector<machine::word> memory, machine::big_word value) -> machine::big_word
   {
     std::cout << "chain_adapter::contract_create" << std::endl;
     return {};
   };
 
-  std::function< std::pair< machine::word, std::vector<machine::word> >(machine::typed_big_word, uint64_t, machine::typed_big_word, std::vector<machine::word>) > contract_call = [](machine::typed_big_word address, uint64_t energy, machine::typed_big_word value, std::vector<machine::word> args) -> std::pair< machine::word, std::vector<machine::word> >
+  std::function< std::pair< machine::word, std::vector<machine::word> >(machine::big_word, uint64_t, machine::big_word, std::vector<machine::word>) > contract_call = [](machine::big_word address, uint64_t energy, machine::big_word value, std::vector<machine::word> args) -> std::pair< machine::word, std::vector<machine::word> >
   {
     std::cout << "chain_adapter::contract_call" << std::endl;
     return {};
   };
 
-  std::function< std::pair< machine::word, std::vector<machine::word> >(machine::typed_big_word, uint64_t, machine::typed_big_word, std::vector<machine::word>) > contract_callcode = [](machine::typed_big_word address, uint64_t energy, machine::typed_big_word value, std::vector<machine::word> args) -> std::pair< machine::word, std::vector<machine::word> >
+  std::function< std::pair< machine::word, std::vector<machine::word> >(machine::big_word, uint64_t, machine::big_word, std::vector<machine::word>) > contract_callcode = [](machine::big_word address, uint64_t energy, machine::big_word value, std::vector<machine::word> args) -> std::pair< machine::word, std::vector<machine::word> >
   {
     std::cout << "chain_adapter::contract_callcode" << std::endl;
     return {};
   };
 
-  std::function< std::pair< machine::word, std::vector<machine::word> >(machine::typed_big_word, uint64_t, std::vector<machine::word>) > contract_delegatecall = [](machine::typed_big_word address, uint64_t energy, std::vector<machine::word> args) -> std::pair< machine::word, std::vector<machine::word> >
+  std::function< std::pair< machine::word, std::vector<machine::word> >(machine::big_word, uint64_t, std::vector<machine::word>) > contract_delegatecall = [](machine::big_word address, uint64_t energy, std::vector<machine::word> args) -> std::pair< machine::word, std::vector<machine::word> >
   {
     std::cout << "chain_adapter::contract_delegatecall" << std::endl;
     return {};
   };
 
-  std::function< std::pair< machine::word, std::vector<machine::word> >(machine::typed_big_word, uint64_t, std::vector<machine::word>) > contract_staticcall = [](machine::typed_big_word address, uint64_t energy, std::vector<machine::word> args) -> std::pair< machine::word, std::vector<machine::word> >
+  std::function< std::pair< machine::word, std::vector<machine::word> >(machine::big_word, uint64_t, std::vector<machine::word>) > contract_staticcall = [](machine::big_word address, uint64_t energy, std::vector<machine::word> args) -> std::pair< machine::word, std::vector<machine::word> >
   {
     std::cout << "chain_adapter::contract_staticcall" << std::endl;
     return {};
   };
 
-  std::function< machine::typed_big_word(std::vector<machine::word>, machine::typed_big_word, machine::typed_big_word) > contract_create2 = [](std::vector<machine::word> memory, machine::typed_big_word value, machine::typed_big_word salt) -> machine::typed_big_word
+  std::function< machine::big_word(std::vector<machine::word>, machine::big_word, machine::big_word) > contract_create2 = [](std::vector<machine::word> memory, machine::big_word value, machine::big_word salt) -> machine::big_word
   {
     std::cout << "chain_adapter::contract_create2" << std::endl;
     return {};
@@ -127,14 +127,14 @@ machine::chain_adapter make_chain_adapter()
     return {};
   };
 
-  std::function< machine::typed_big_word(machine::typed_big_word) > get_storage = [](machine::typed_big_word) -> machine::typed_big_word
+  std::function< machine::big_word(machine::big_word) > get_storage = [](machine::big_word) -> machine::big_word
   {
     std::cout << "chain_adapter::get_storage" << std::endl;
 
-    return machine::typed_big_word(0);
+    return machine::big_word(0);
   };
 
-  std::function< bool(machine::typed_big_word, machine::typed_big_word) > set_storage = [](machine::typed_big_word, machine::typed_big_word value) -> bool
+  std::function< bool(machine::big_word, machine::big_word) > set_storage = [](machine::big_word, machine::big_word value) -> bool
   {
     std::cout << "chain_adapter::set_storage" << std::endl;
     return false;
@@ -146,15 +146,9 @@ machine::chain_adapter make_chain_adapter()
     return {};
   };
 
-  std::function< bool(machine::typed_big_word) > self_destruct = [](machine::typed_big_word address) -> bool
+  std::function< bool(machine::big_word) > self_destruct = [](machine::big_word address) -> bool
   {
     std::cout << "chain_adapter::self_destruct" << std::endl;
-    return {};
-  };
-
-  std::function< std::vector<machine::word>(machine::typed_big_word) > get_input_data = [](machine::typed_big_word address) -> std::vector<machine::word>
-  {
-    std::cout << "chain_adapter::get_input_data" << std::endl;
     return {};
   };
 
@@ -175,7 +169,6 @@ machine::chain_adapter make_chain_adapter()
     set_storage,
     contract_return,
     self_destruct,
-    get_input_data
   };
 
   return adapter;
