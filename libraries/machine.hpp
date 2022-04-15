@@ -21,7 +21,8 @@ namespace machine
     word value;
     bool is_sparse;
 
-    typed_word(const word _value = 0, const bool _is_sparse = 0) : value(_value), is_sparse(_is_sparse) {}
+    typed_word(const word _value = 0) : value(_value), is_sparse(false) {}
+    typed_word(const word _value, const bool _is_sparse) : value(_value), is_sparse(_is_sparse) {}
 
     bool operator==(const typed_word &other) const {
       return this->value == other.value;
@@ -63,6 +64,7 @@ namespace machine
       if (this == &rhs)
         return *this;
       this->value = rhs.value;
+      this->is_sparse = rhs.is_sparse;
       return *this;
     }
 
@@ -108,7 +110,8 @@ namespace machine
     big_word value;
     bool is_sparse;
 
-    typed_big_word(const big_word _value = 0, const bool _is_sparse = 0) : value(_value), is_sparse(_is_sparse) {}
+    typed_big_word(const big_word _value = 0) : value(_value), is_sparse(false) {}
+    typed_big_word(const big_word _value, const bool _is_sparse) : value(_value), is_sparse(_is_sparse) {}
 
     bool operator==(const typed_big_word &other) const {
       return this->value == other.value;
@@ -150,6 +153,7 @@ namespace machine
       if (this == &rhs)
         return *this;
       this->value = rhs.value;
+      this->is_sparse = rhs.is_sparse;
       return *this;
     }
 
@@ -195,7 +199,8 @@ namespace machine
     signed_big_word value;
     bool is_sparse;
 
-    typed_signed_big_word(const signed_big_word _value = 0, const bool _is_sparse = 0) : value(_value), is_sparse(_is_sparse) {}
+    typed_signed_big_word(const signed_big_word _value = 0) : value(_value), is_sparse(false) {}
+    typed_signed_big_word(const signed_big_word _value, const bool _is_sparse) : value(_value), is_sparse(_is_sparse) {}
 
     bool operator==(const typed_signed_big_word &other) const {
       return this->value == other.value;
@@ -237,6 +242,7 @@ namespace machine
       if (this == &rhs)
         return *this;
       this->value = rhs.value;
+      this->is_sparse = rhs.is_sparse;
       return *this;
     }
 

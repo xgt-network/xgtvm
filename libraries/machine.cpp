@@ -38,36 +38,38 @@ namespace machine
     return x.convert_to<size_t>();
   }
 
-  typed_big_word to_typed_big_word(int64_t a)
+  typed_big_word to_typed_big_word(int64_t a, bool is_sparse = false)
   {
-    return typed_big_word(a);
+    return typed_big_word(a, is_sparse);
   }
 
-  typed_big_word to_typed_big_word(size_t a)
+  typed_big_word to_typed_big_word(size_t a, bool is_sparse = false)
   {
-    return typed_big_word(a);
+    return typed_big_word(a, is_sparse);
   }
 
-  typed_big_word to_typed_big_word(typed_word a)
+  typed_big_word to_typed_big_word(typed_word a, bool is_sparse = false)
   {
-    return typed_big_word(a.value);
+    return typed_big_word(a.value, is_sparse);
   }
 
-  typed_big_word to_typed_big_word(typed_word a, typed_word b)
+  typed_big_word to_typed_big_word(typed_word a, typed_word b, bool is_sparse = false)
   {
     typed_big_word va = (to_typed_big_word(a).value << 8) | to_typed_big_word(b).value;
+    va.is_sparse = is_sparse;
     return va;
   }
 
-  typed_big_word to_typed_big_word(typed_word a, typed_word b, typed_word c, typed_word d)
+  typed_big_word to_typed_big_word(typed_word a, typed_word b, typed_word c, typed_word d, bool is_sparse = false)
   {
     typed_big_word va = (to_typed_big_word(a).value << 8) | to_typed_big_word(b).value;
     typed_big_word vb = (va.value << 8) | c.value;
     typed_big_word vc = (vb.value << 8) | d.value;
+    vc.is_sparse = is_sparse;
     return vc;
   }
 
-  typed_big_word to_typed_big_word(typed_word a, typed_word b, typed_word c, typed_word d, typed_word e, typed_word f, typed_word g, typed_word h)
+  typed_big_word to_typed_big_word(typed_word a, typed_word b, typed_word c, typed_word d, typed_word e, typed_word f, typed_word g, typed_word h, bool is_sparse = false)
   {
     typed_big_word va = (to_typed_big_word(a).value << 8) | to_typed_big_word(b).value;
     typed_big_word vb = (va.value << 8) | c.value;
@@ -76,11 +78,12 @@ namespace machine
     typed_big_word ve = (vd.value << 8) | f.value;
     typed_big_word vf = (ve.value << 8) | g.value;
     typed_big_word vg = (vf.value << 8) | h.value;
+    vg.is_sparse = is_sparse;
     return vg;
   }
 
   typed_big_word to_typed_big_word(typed_word a, typed_word b, typed_word c, typed_word d, typed_word e, typed_word f, typed_word g,
-      typed_word h, typed_word i, typed_word j, typed_word k, typed_word l, typed_word m, typed_word n, typed_word o, typed_word p)
+      typed_word h, typed_word i, typed_word j, typed_word k, typed_word l, typed_word m, typed_word n, typed_word o, typed_word p, bool is_sparse = false)
   {
     typed_big_word va = (to_typed_big_word(a).value << 8) | to_typed_big_word(b).value;
     typed_big_word vb = (va.value << 8) | c.value;
@@ -97,13 +100,14 @@ namespace machine
     typed_big_word vm = (vl.value << 8) | n.value;
     typed_big_word vn = (vm.value << 8) | o.value;
     typed_big_word vo = (vn.value << 8) | p.value;
+    vo.is_sparse = is_sparse;
     return vo;
   }
 
   typed_big_word to_typed_big_word(typed_word a, typed_word b, typed_word c, typed_word d, typed_word e, typed_word f, typed_word g,
       typed_word h, typed_word i, typed_word j, typed_word k, typed_word l, typed_word m, typed_word n, typed_word o, typed_word p,
       typed_word q, typed_word r, typed_word s, typed_word t, typed_word u, typed_word v, typed_word w, typed_word x, typed_word y,
-      typed_word z, typed_word aa, typed_word ab, typed_word ac, typed_word ad, typed_word ae, typed_word af)
+      typed_word z, typed_word aa, typed_word ab, typed_word ac, typed_word ad, typed_word ae, typed_word af, bool is_sparse = false)
   {
     typed_big_word va  = (to_typed_big_word(a).value << 8) | to_typed_big_word(b).value;
     typed_big_word vb  = (va.value << 8)  | c.value;
@@ -136,15 +140,16 @@ namespace machine
     typed_big_word vac = (vab.value << 8) | ad.value;
     typed_big_word vad = (vac.value << 8) | ae.value;
     typed_big_word vae = (vad.value << 8) | af.value;
+    vae.is_sparse = is_sparse;
     return vae;
   }
 
-  std::vector<word> from_typed_big_word(typed_big_word a)
+  std::vector<typed_word> from_typed_big_word(typed_big_word a)
   {
-    std::vector<word> vec;
-    vec.push_back(static_cast<word>(a.value & 0xFF));
+    std::vector<typed_word> vec;
+    vec.push_back( typed_word( static_cast<word>(a.value & 0xFF), a.is_sparse ) );
     for (size_t i = 0; i < 31; i++) {
-      vec.push_back(static_cast<word>(((a.value >>= 8) & 0xFF)));
+      vec.push_back( typed_word( static_cast<word>( (a.value >>= 8) & 0xFF ), a.is_sparse ) );
     }
 
     return vec;
@@ -247,7 +252,8 @@ namespace machine
     opcode jumpdest_op;
     typed_signed_big_word sa, sb, sc;
     size_t offset, dest_offset, length, code_size = 0;
-    std::vector<word> vec1;
+    // TODO XXX convert words to typed_words
+    std::vector<typed_word> vec1;
     std::vector<word> contract_args;
     std::vector<word> retval;
     std::vector<word> ext_contract_code;
@@ -392,7 +398,7 @@ namespace machine
         logger << "op eq" << std::endl;
         va = pop_word();
         vb = pop_word();
-        vb = va == vb ? typed_big_word(1) : typed_big_word(0);
+        vc = va == vb ? typed_big_word(1) : typed_big_word(0);
         push_word(vc);
         break;
       case iszero_opcode:
@@ -480,6 +486,7 @@ namespace machine
             it = memory.find(i);
             if (it != memory.end()) {
               if ( it->second.is_sparse ) {
+                std::cout << i << std::endl;
                 for (size_t i = 0; i < 31; i++) {
                   retval.push_back( word(0) );
                 }
@@ -488,6 +495,7 @@ namespace machine
             }
             else {
               if ( it->second.is_sparse ) {
+                std::cout << i << std::endl;
                 for (size_t i = 0; i < 32; i++) {
                   retval.push_back( word(0) );
                 }
@@ -586,6 +594,8 @@ namespace machine
 
         for (size_t i = 0; i < length; ++i) {
           memory[dest_offset + i] = typed_word(msg.input_data[offset + i], true);
+          // TODO This isn't being set correctly in the constructor
+          memory[dest_offset + i].is_sparse = true;
         }
 
         break;
@@ -602,6 +612,8 @@ namespace machine
 
         for (size_t i = 0; i < length; ++i) {
           memory[dest_offset + i] = typed_word(code[offset + i], true);
+          // TODO This isn't being set correctly in the constructor
+          memory[dest_offset + i].is_sparse = true;
         }
 
         break;
@@ -631,6 +643,8 @@ namespace machine
 
         for (size_t i = 0; i < length; ++i) {
           memory[dest_offset + i] = typed_word(ext_contract_code[offset + i], true);
+          // TODO This isn't being set correctly in the constructor
+          memory[dest_offset + i].is_sparse = true;
         }
 
         break;
@@ -726,8 +740,17 @@ namespace machine
             memory[static_cast<size_t>(va.value) + 28],
             memory[static_cast<size_t>(va.value) + 29],
             memory[static_cast<size_t>(va.value) + 30],
-            memory[static_cast<size_t>(va.value) + 31]
+            memory[static_cast<size_t>(va.value) + 31],
+            memory[static_cast<size_t>(va.value)].is_sparse
         );
+
+        if (memory[static_cast<size_t>(va.value)].is_sparse) {
+          std::cout << "FIND ME" << std::endl;
+          vb.is_sparse = true;
+        }
+
+        std::cout << "IS IT REALLY SPARSE: " << vb.is_sparse << std::endl;
+
         push_word(vb);
         break;
       case mstore_opcode:
@@ -736,10 +759,13 @@ namespace machine
         vb = pop_word(); // value
         logger << "memory before: " << inspect(memory) << std::endl;
 
+        std::cout << "MSTORE" << std::endl;
+        std::cout << "Value: " << vb.value << std::endl;
+        std::cout << "Is sparse: " << vb.is_sparse << std::endl;
         vec1 = from_typed_big_word(vb);
-        for (size_t i = 0; i < 32; i++) {
-          memory[static_cast<size_t>(va.value) + i] = typed_word(vec1[31 - i], false);
-        }
+        for (size_t i = 0; i < 32; i++)
+          memory[static_cast<size_t>(va.value) + i] = vec1[31 - i];
+
         logger << "memory after: " << inspect(memory) << std::endl;
         break;
       case mstore8_opcode:
@@ -2902,6 +2928,8 @@ namespace machine
           s << "\"" << it->first << "\"";
           s << ":";
           s << unsigned(it->second.value);
+          s << " : ";
+          s << it->second.is_sparse;
           if (memory.size() > 1 && std::next(it, 1) != memory.cend())
             s << ",";
         }
