@@ -486,7 +486,6 @@ namespace machine
             it = memory.find(i);
             if (it != memory.end()) {
               if ( it->second.is_sparse ) {
-                std::cout << i << std::endl;
                 for (size_t i = 0; i < 31; i++) {
                   retval.push_back( word(0) );
                 }
@@ -495,7 +494,6 @@ namespace machine
             }
             else {
               if ( it->second.is_sparse ) {
-                std::cout << i << std::endl;
                 for (size_t i = 0; i < 32; i++) {
                   retval.push_back( word(0) );
                 }
@@ -533,14 +531,15 @@ namespace machine
         break;
       case calldataload_opcode:
         logger << "op calldataload" << std::endl;
-        offset = static_cast<size_t>( pop_word().value );
+        va = pop_word();
+        offset = static_cast<size_t>( va.value );
 
         if (offset > msg.input_size) {
           logger << "calldataload start index is larger than message input_size" << std::endl;
           break;
         }
 
-        va = to_typed_big_word(
+        vb = to_typed_big_word(
             msg.input_data[offset + 0],
             msg.input_data[offset + 1],
             msg.input_data[offset + 2],
@@ -572,9 +571,11 @@ namespace machine
             msg.input_data[offset + 28],
             msg.input_data[offset + 29],
             msg.input_data[offset + 30],
-            msg.input_data[offset + 31]
+            msg.input_data[offset + 31],
+            true
         );
-        push_word(va);
+
+        push_word(vb);
         break;
       case calldatasize_opcode:
         logger << "op calldatasize" << std::endl;
@@ -744,13 +745,6 @@ namespace machine
             memory[static_cast<size_t>(va.value)].is_sparse
         );
 
-        if (memory[static_cast<size_t>(va.value)].is_sparse) {
-          std::cout << "FIND ME" << std::endl;
-          vb.is_sparse = true;
-        }
-
-        std::cout << "IS IT REALLY SPARSE: " << vb.is_sparse << std::endl;
-
         push_word(vb);
         break;
       case mstore_opcode:
@@ -759,9 +753,6 @@ namespace machine
         vb = pop_word(); // value
         logger << "memory before: " << inspect(memory) << std::endl;
 
-        std::cout << "MSTORE" << std::endl;
-        std::cout << "Value: " << vb.value << std::endl;
-        std::cout << "Is sparse: " << vb.is_sparse << std::endl;
         vec1 = from_typed_big_word(vb);
         for (size_t i = 0; i < 32; i++)
           memory[static_cast<size_t>(va.value) + i] = vec1[31 - i];
@@ -2878,6 +2869,8 @@ namespace machine
         {
           typed_big_word bw = *it;
           s << bw.value;
+          s << ":";
+          s << bw.is_sparse;
           if (stack.size() > 1 && std::next(it, 1) != stack.cend())
             s << ",";
         }
